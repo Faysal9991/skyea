@@ -1,42 +1,49 @@
 {
   "project_info": {
-    "project_number": "51693865096",
-    "project_id": "doyel-live",
-    "storage_bucket": "doyel-live.appspot.com"
+    "project_number": "327249087442",
+    "project_id": "skyelive-15557",
+    "storage_bucket": "skyelive-15557.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:51693865096:android:3aabcb5e29363c8694373d",
+        "mobilesdk_app_id": "1:327249087442:android:90e1bd4cd54cb5f2d6d60b",
         "android_client_info": {
           "package_name": "com.taksoft.doyel_live"
         }
       },
       "oauth_client": [
         {
-          "client_id": "51693865096-9h181i3bpreo99jlm0d6mhvg7ncudi2b.apps.googleusercontent.com",
+          "client_id": "327249087442-svr8505413i8c5krssbcq39q81tvghqb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.taksoft.doyel_live",
-            "certificate_hash": "fccc34ef4265e730d89456f0beabd75db7c86b83"
+            "certificate_hash": "86bbe8e9debe1313ebf1c38405d525ba996dffda"
           }
         },
         {
-          "client_id": "51693865096-jmpo3vdmcq87t8uigvg1jnkmo8ngj2i5.apps.googleusercontent.com",
+          "client_id": "327249087442-8e6lbgaf7al6aqsd8pk7rve117pvncp8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC7BBr0VXdDdJ-rXAVxp7M_v2UNQ6pBwSU"
+          "current_key": "AIzaSyDsyR0-kdKYH3161IhjoKnatsqGtPF8vNI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "51693865096-jmpo3vdmcq87t8uigvg1jnkmo8ngj2i5.apps.googleusercontent.com",
+              "client_id": "327249087442-8e6lbgaf7al6aqsd8pk7rve117pvncp8.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "327249087442-r1p8tjn1dqe656ku5up9duo7ai221566.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.taksoft.doyelLive"
+              }
             }
           ]
         }
