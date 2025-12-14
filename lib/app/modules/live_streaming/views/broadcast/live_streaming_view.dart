@@ -1967,26 +1967,27 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Share
-                      CircleButton(
-                        icon: Icons.share,
-                        iconSize: 24.0,
-                        minHeight: 32,
-                        minWidth: 32,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        iconColor: Colors.white70,
-                        onPressed: () {
-                          HelperFunctions().buildDynamicLinksForLiveStreaming(
-                            title: _livekitStreamingController
-                                .broadcasterFullname
-                                .value,
-                            description: 'Is Live Now',
-                            image: _livekitStreamingController
-                                .broadcasterProfileImage
-                                .value,
-                            channelId: widget.channelName,
-                          );
-                        },
-                      ),
+                      // CircleButton(
+                      //   icon: Icons.share,
+                      //   iconSize: 24.0,
+                      //   minHeight: 32,
+                      //   minWidth: 32,
+                      //   backgroundColor: Theme.of(context).primaryColor,
+                      //   iconColor: Colors.white70,
+                      //   onPressed: () {
+                      //     HelperFunctions().buildDynamicLinksForLiveStreaming(
+                      //       title: _livekitStreamingController
+                      //           .broadcasterFullname
+                      //           .value,
+                      //       description: 'Is Live Now',
+                      //       image: _livekitStreamingController
+                      //           .broadcasterProfileImage
+                      //           .value,
+                      //       channelId: widget.channelName,
+                      //     );
+                      //   },
+                      // ),
+                    
                       // Allow Comment and Emoji sends
                       !widget.isBroadcaster
                           ? Container()
@@ -2185,6 +2186,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                     ],
                   ),
                 ),
+              
               ],
             ),
           ),
@@ -3941,7 +3943,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                                   fit: BoxFit.cover,
                                 )
                               : CachedNetworkImage(
-                                  imageUrl: '${data['profile_image']}',
+                                  imageUrl: 'https://${data['profile_image']}',
                                   width: 28,
                                   height: 28,
                                   fit: BoxFit.cover,

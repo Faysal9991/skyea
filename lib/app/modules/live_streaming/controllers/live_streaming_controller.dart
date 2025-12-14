@@ -118,7 +118,7 @@ class LiveStreamingController extends GetxController {
   final RxList<ParticipantTrack> listRenderView = <ParticipantTrack>[].obs;
   final liveStreamData = {}.obs;
 
-  String liveRoomSocketBaseUrl = 'ws://195.26.253.191/ws/livekit-live-room';
+  String liveRoomSocketBaseUrl = 'wss://livekit.skyapp.name';
 
   Rx<CameraPosition> cameraPosition = CameraPosition.front.obs;
 

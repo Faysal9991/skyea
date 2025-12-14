@@ -7,20 +7,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:327249087442:android:90e1bd4cd54cb5f2d6d60b",
+        "mobilesdk_app_id": "1:327249087442:android:7afeeb68c633f221d6d60b",
         "android_client_info": {
-          "package_name": "com.taksoft.doyel_live"
+          "package_name": "com.skylive.bd.saver"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "327249087442-svr8505413i8c5krssbcq39q81tvghqb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.taksoft.doyel_live",
-            "certificate_hash": "86bbe8e9debe1313ebf1c38405d525ba996dffda"
-          }
-        },
         {
           "client_id": "327249087442-8e6lbgaf7al6aqsd8pk7rve117pvncp8.apps.googleusercontent.com",
           "client_type": 3

@@ -196,6 +196,7 @@ class ProfileController extends GetxController {
       );
       int? statusCode = response.statusCode;
       loadingProfile.value = false;
+      print("-------------response: ${response.data}--------------");
       if (statusCode == 200) {
         authController.profile.value = Profile();
         authController.profile.value =
@@ -221,6 +222,7 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       loadingProfile.value = false;
+      print("-------------error: $e--------------");
       Get.snackbar(
         'Failed',
         "Something is wrong. Please try again.",

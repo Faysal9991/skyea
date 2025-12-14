@@ -87,12 +87,8 @@ class AuthController extends GetxController {
     googleSignIn
         .authenticate()
         .then((userData) async {
-          googleSignIn
-              .signOut()
-              .then((value) {
-                Get.back();
-              })
-              .catchError((_) {});
+        
+             
 
           authLoading.value = true;
 
@@ -121,6 +117,7 @@ class AuthController extends GetxController {
             'photo_url': photoUrl,
             'server_auth_code': serverAuthCode,
           };
+          print("Google Sign-In Data: $data");
           // SignUp Api Call
           var dio = Dio();
           try {
@@ -128,6 +125,10 @@ class AuthController extends GetxController {
               kLoginUsingFirebaseUrl,
               data: data,
               options: Options(
+                headers: {
+                  'accept': '*/*',
+                  'X-Api-Key': DRF_API_KEY,
+                },
                ),
               queryParameters: {'device_id': await getUniqueDeviceId()},
             );
@@ -168,6 +169,7 @@ class AuthController extends GetxController {
               );
             }
           } catch (e) {
+            print('Error.......$e');
             authLoading.value = false;
             Get.snackbar(
               'Failed',
@@ -178,8 +180,8 @@ class AuthController extends GetxController {
             );
           }
         })
-        .catchError((_) {
-          // print('Error.......$e');
+        .catchError((e) {
+          print('Error.......$e');
           Get.snackbar(
             'Failed',
             "Something is wrong. Please try again.",
@@ -262,6 +264,14 @@ void tryToSingInWithPassword({
       Get.snackbar(
         'Failed',
         message,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      Get.snackbar(
+        'Failed',
+        "Something is wrong. Please try again.",
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,

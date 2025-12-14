@@ -13,8 +13,8 @@ import 'package:doyel_live/app/modules/profile/views/broadcasting_histories.dart
 import 'package:doyel_live/app/modules/profile/views/edit_profile_view.dart';
 import 'package:doyel_live/app/modules/profile/views/info/privacy_policy_view.dart';
 import 'package:doyel_live/app/modules/profile/views/info/terms_and_conditions_view.dart';
+import 'package:doyel_live/main.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -25,476 +25,381 @@ import '../controllers/profile_controller.dart';
 class ProfileView extends GetView<ProfileController> {
   ProfileView({Key? key}) : super(key: key);
   final AuthController _authController = Get.find();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Profile',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            // === Fancy Header ===
+            Text(
+              'My Profile',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 1.2,
+                shadows: [
+                  Shadow(
+                    blurRadius: 10,
+                    color: primaryColor.withOpacity(0.6),
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+
+            // === Hero Profile Card with Glassmorphism + Glow ===
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                // color: Colors.black45,
-                borderRadius: BorderRadius.circular(16.0),
-                gradient: const LinearGradient(
-                  colors: [Colors.black38, Colors.grey, Colors.black12],
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    primaryColor.withOpacity(0.3),
+                    secondaryColor.withOpacity(0.4),
+                    tertiaryColor.withOpacity(0.6),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.4),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+                border: Border.all(color: primaryColor.withOpacity(0.3), width: 1.5),
               ),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 72,
-                    height: 72,
-                    child: Obx(() {
-                      return Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100.0),
-                              border: Border.all(
-                                width: 2.0,
-                                color: Colors.white,
+                  // Profile Picture with VIP/VVIP Badge + Glow
+                  Obx(() {
+                    final hasVipBadge = _authController.profile.value.vvip_or_vip_preference['vvip_or_vip_gif'] != null;
+                    return Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [primaryColor, secondaryColor],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaryColor.withOpacity(0.7),
+                                blurRadius: 20,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: hasVipBadge ? 36 : 42,
+                            backgroundColor: surfaceColor,
+                            child: CircleAvatar(
+                              radius: hasVipBadge ? 32 : 38,
+                              backgroundImage: _authController.profile.value.profile_image == null &&
+                                  _authController.profile.value.photo_url == null
+                                  ? const AssetImage('assets/others/person.jpg') as ImageProvider
+                                  :CachedNetworkImageProvider(
+  (_authController.profile.value.profile_image ??
+          _authController.profile.value.photo_url!)
+      .startsWith('http')
+      ? (_authController.profile.value.profile_image ??
+          _authController.profile.value.photo_url!)
+      : 'https://${_authController.profile.value.profile_image ?? _authController.profile.value.photo_url!}',
+)
+
+                            ),
+                          ),
+                        ),
+                        // VVIP/VIP Animated Badge
+                        if (hasVipBadge)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black87,
+                                border: Border.all(color: goldAccent, width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: goldAccent.withOpacity(0.8),
+                                    blurRadius: 15,
+                                    spreadRadius: 3,
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: CachedNetworkImage(
+                                  imageUrl: _authController.profile.value.vvip_or_vip_preference['vvip_or_vip_gif'],
+                                  width: 38,
+                                  height: 38,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(100.0),
-                              child:
-                                  _authController.profile.value.profile_image ==
-                                          null &&
-                                      _authController.profile.value.photo_url ==
-                                          null
-                                  ? Image.asset(
-                                      'assets/others/person.jpg',
-                                      width:
-                                          _authController
-                                                  .profile
-                                                  .value
-                                                  .vvip_or_vip_preference['vvip_or_vip_gif'] !=
-                                              null
-                                          ? 60
-                                          : 72,
-                                      height:
-                                          _authController
-                                                  .profile
-                                                  .value
-                                                  .vvip_or_vip_preference['vvip_or_vip_gif'] !=
-                                              null
-                                          ? 60
-                                          : 72,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl:
-                                          '${_authController.profile.value.profile_image ?? _authController.profile.value.photo_url}',
-                                      width:
-                                          _authController
-                                                  .profile
-                                                  .value
-                                                  .vvip_or_vip_preference['vvip_or_vip_gif'] !=
-                                              null
-                                          ? 60
-                                          : 72,
-                                      height:
-                                          _authController
-                                                  .profile
-                                                  .value
-                                                  .vvip_or_vip_preference['vvip_or_vip_gif'] !=
-                                              null
-                                          ? 60
-                                          : 72,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                    ),
-                            ),
                           ),
-                          _authController
-                                      .profile
-                                      .value
-                                      .vvip_or_vip_preference['vvip_or_vip_gif'] !=
-                                  null
-                              ? Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black38,
-                                      // borderRadius: BorderRadius.only(
-                                      //   bottomLeft: Radius.circular(20.0),
-                                      //   bottomRight: Radius.circular(20.0),
-                                      // ),
-                                      border: Border.all(
-                                        color: Colors.orange.shade600,
-                                        width: 2.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        100.0,
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                        100.0,
-                                      ),
-                                      child: CachedNetworkImage(
-                                        imageUrl: _authController
-                                            .profile
-                                            .value
-                                            .vvip_or_vip_preference['vvip_or_vip_gif'],
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      );
-                    }),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        child: Obx(() {
-                          return Text(
-                            '${_authController.profile.value.full_name}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          );
-                        }),
-                      ),
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        child: Obx(() {
-                          return Text(
-                            '${_authController.profile.value.user!.phone}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          );
-                        }),
-                      ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.start,
-                      //   children: [
-                      //     Text(
-                      //       'ID:  ${_authController.profile.value.user!.uid!}',
-                      //       style: const TextStyle(
-                      //         color: Colors.white,
-                      //       ),
-                      //     ),
-                      //     const SizedBox(
-                      //       width: 16,
-                      //     ),
-                      //     Obx(() {
-                      //       return Text(
-                      //         'Level:  ${_authController.profile.value.level != null ? _authController.profile.value.level['level']['level'] : 0}',
-                      //         style: const TextStyle(
-                      //           color: Colors.white,
-                      //         ),
-                      //       );
-                      //     }),
-                      //   ],
-                      // ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/others/diamond.png',
-                            width: 16,
-                            height: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Obx(() {
-                            return Text(
-                              '${_authController.profile.value.diamonds ?? 0}',
-                              style: const TextStyle(color: Colors.white),
-                            );
-                          }),
-                          const SizedBox(width: 16),
-                          const Icon(
-                            Icons.perm_identity,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Obx(() {
-                            return Text(
-                              '${_authController.profile.value.followers!.length}',
-                              style: const TextStyle(color: Colors.white),
-                            );
-                          }),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                //set border radius more than 50% of height and width to make circle
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    onTap: () => Get.to(() => const EditProfileView()),
-                    dense: true,
-                    leading: const Icon(Icons.settings),
-                    title: const Text(
-                      'Edit Profile',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  Obx(() {
-                    if (_authController.profile.value.login_type !=
-                        'password_login') {
-                      return Container();
-                    }
-                    return ListTile(
-                      onTap: () => Get.to(() => ChangePasswordView()),
-                      dense: true,
-                      leading: const Icon(Icons.password),
-                      title: const Text(
-                        'Change Password',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      ],
                     );
                   }),
-                  Obx(
-                    () => ListTile(
-                      onTap: () => Get.to(() => const BlockListView()),
-                      dense: true,
-                      leading: const Icon(Icons.no_accounts_rounded),
-                      title: Text(
-                        'Block List: ${_authController.profile.value.blocks!.length}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    ),
-                  ),
-                  ListTile(
-                    onTap: () => Get.to(
-                      () => BroadcastingHistoriesView(
-                        userId: _authController.profile.value.user!.uid!,
-                        isAgentSearch: false,
-                      ),
-                    ),
-                    dense: true,
-                    leading: Icon(MdiIcons.history),
-                    title: const Text(
-                      'History',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  Obx(() {
-                    if (!_authController.profile.value.is_moderator!) {
-                      return Container();
-                    }
-                    return ListTile(
-                      onTap: () => Get.to(() => ModeratorView()),
-                      dense: true,
-                      leading: const Icon(Icons.local_activity),
-                      title: const Text(
-                        'Moderator Activity',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    );
-                  }),
-                  Obx(() {
-                    if (!_authController.profile.value.is_reseller!) {
-                      return Container();
-                    }
-                    return ListTile(
-                      onTap: () => Get.to(() => ResellerView()),
-                      dense: true,
-                      leading: Icon(MdiIcons.diamond),
-                      title: const Text(
-                        'Reseller Recharge',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    );
-                  }),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                //set border radius more than 50% of height and width to make circle
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    onTap: () => Get.to(() => const VVIPPackageView()),
-                    dense: true,
-                    leading: const Icon(Icons.important_devices),
-                    title: const Text(
-                      'VVIP Package',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  ListTile(
-                    onTap: () => Get.to(() => const VIPPackageView()),
-                    dense: true,
-                    leading: const Icon(Icons.important_devices_rounded),
-                    title: const Text(
-                      'VIP Package',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  !_authController.profile.value.is_agent!
-                      ? Container()
-                      : ListTile(
-                          onTap: () => Get.to(
-                            () => HostsView(
-                              agentUserId:
-                                  _authController.profile.value.user?.uid!,
-                            ),
-                          ),
-                          dense: true,
-                          leading: const Icon(Icons.groups),
-                          title: const Text(
-                            'Host List',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                          ),
-                        ),
-                  _authController.profile.value.is_agent! ||
-                          _authController.profile.value.is_moderator! ||
-                          _authController.profile.value.is_reseller! ||
-                          _authController.profile.value.is_host!
-                      ? Container()
-                      : ListTile(
-                          onTap: () => Get.to(() => const HostRequstView()),
-                          dense: true,
-                          leading: const Icon(Icons.broadcast_on_home),
-                          title: const Text(
-                            'Host Request',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                          ),
-                        ),
-                  !_authController.profile.value.is_host!
-                      ? Container()
-                      : ListTile(
-                          onTap: () => Get.to(() => AgentForHostView()),
-                          dense: true,
-                          leading: const Icon(Icons.support_agent),
-                          title: const Text(
-                            'My Agent',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                          ),
-                        ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                //set border radius more than 50% of height and width to make circle
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    onTap: () async {
-                      String title = 'Welcome to Doyel Live';
-                      String playStoreAppUrl =
-                          'https://play.google.com/store/apps/details?id=com.taksoft.doyel_live';
-                      String sharedText =
-                          'You Can Join With Us for Fun.......\n\n$playStoreAppUrl';
-                      await SharePlus.instance.share(
-                        ShareParams(text: sharedText, subject: title),
-                      );
-                    },
-                    dense: true,
-                    leading: const Icon(Icons.share),
-                    title: const Text(
-                      'Share App',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  ListTile(
-                    onTap: () {
-                      final Uri emailLaunchUri = Uri(
-                        scheme: 'mailto',
-                        path: 'toplive46@gmail.com',
-                      );
 
-                      launchUrl(emailLaunchUri);
-                    },
-                    dense: true,
-                    leading: Icon(MdiIcons.help),
-                    title: const Text(
-                      'Help & Feedback',
-                      style: TextStyle(fontSize: 18),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(() => Text(
+                          _authController.profile.value.full_name ?? 'User',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        )),
+                        const SizedBox(height: 4),
+                        Obx(() => Text(
+                          _authController.profile.value.user?.phone ?? '',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white70,
+                          ),
+                        )),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _buildStatItem('assets/others/diamond.png', '${_authController.profile.value.diamonds ?? 0}', 'Diamonds', goldAccent),
+                            const SizedBox(width: 20),
+                            _buildStatItem(Icons.people, '${_authController.profile.value.followers?.length ?? 0}', 'Followers', Colors.cyanAccent),
+                          ],
+                        ),
+                      ],
                     ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  ListTile(
-                    onTap: () => Get.to(() => const PrivacyPolicyView()),
-                    dense: true,
-                    leading: Icon(MdiIcons.fileDocument),
-                    title: const Text(
-                      'Privacy Policy',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  ),
-                  ListTile(
-                    onTap: () => Get.to(() => const TermsAndConditionsView()),
-                    dense: true,
-                    leading: Icon(MdiIcons.fileDocument),
-                    title: const Text(
-                      'Terms & Conditions',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // === Account Settings Grid ===
+            _buildFancySectionTitle("Account Settings", Icons.person_outline),
+            const SizedBox(height: 16),
+            _buildGridSection([
+              _GridItem("Edit Profile", Icons.edit, () => Get.to(() => const EditProfileView()), [Colors.blue.shade400, Colors.blue.shade600]),
+              if (_authController.profile.value.login_type == 'password_login')
+                _GridItem("Change Password", Icons.lock_outline, () => Get.to(() => ChangePasswordView()), [Colors.orange.shade400, Colors.orange.shade600]),
+              _GridItem("Block List", Icons.block, () => Get.to(() => const BlockListView()), [Colors.red.shade400, Colors.red.shade600]),
+              _GridItem("Broadcast History", MdiIcons.history, () => Get.to(() => BroadcastingHistoriesView(userId: _authController.profile.value.user!.uid!, isAgentSearch: false)), [Colors.purple.shade400, Colors.purple.shade600]),
+              if (_authController.profile.value.is_moderator == true)
+                _GridItem("Moderator Panel", Icons.shield, () => Get.to(() => ModeratorView()), [Colors.deepPurple.shade400, Colors.deepPurple.shade600]),
+              if (_authController.profile.value.is_reseller == true)
+                _GridItem("Reseller Dashboard", MdiIcons.diamondStone, () => Get.to(() => ResellerView()), [goldAccent, Colors.amber.shade700]),
+            ]),
+
+            const SizedBox(height: 30),
+
+            // === Premium Features Grid ===
+            _buildFancySectionTitle("Premium Features", Icons.star_border_purple500_sharp),
+            const SizedBox(height: 16),
+            _buildGridSection([
+              _GridItem("VVIP Package", Icons.vignette, () => Get.to(() => const VVIPPackageView()), [goldAccent, Colors.amber.shade700]),
+              _GridItem("VIP Package", Icons.auto_awesome, () => Get.to(() => const VIPPackageView()), [Colors.purpleAccent, Colors.purple.shade600]),
+              if (_authController.profile.value.is_agent == true)
+                _GridItem("My Hosts", Icons.groups, () => Get.to(() => HostsView(agentUserId: _authController.profile.value.user!.uid!)), [Colors.teal.shade400, Colors.teal.shade700]),
+              if (!(_authController.profile.value.is_agent == true || _authController.profile.value.is_host == true || _authController.profile.value.is_moderator == true || _authController.profile.value.is_reseller == true))
+                _GridItem("Become a Host", Icons.live_tv, () => Get.to(() => const HostRequstView()), [primaryColor, secondaryColor]),
+              if (_authController.profile.value.is_host == true)
+                _GridItem("My Agent", Icons.support_agent, () => Get.to(() => AgentForHostView()), [Colors.cyan.shade400, Colors.cyan.shade700]),
+            ]),
+
+            const SizedBox(height: 30),
+
+            // === More Options Grid ===
+            _buildFancySectionTitle("More", Icons.more_horiz),
+            const SizedBox(height: 16),
+            _buildGridSection([
+              _GridItem("Share App", Icons.share, () async {
+                await SharePlus.instance.share(
+                  ShareParams(
+                    text: "Join Sky Live for unlimited fun!\nhttps://play.google.com/store/apps/details?id=com.taksoft.Sky_live",
+                    subject: "Sky Live - Live Streaming App",
+                  ),
+                );
+              }, [Colors.green.shade400, Colors.green.shade600]),
+              _GridItem("Help & Feedback", MdiIcons.helpCircleOutline, () {
+                launchUrl(Uri(scheme: 'mailto', path: 'toplive46@gmail.com'));
+              }, [Colors.indigo.shade400, Colors.indigo.shade600]),
+              _GridItem("Privacy Policy", Icons.privacy_tip_outlined, () => Get.to(() => const PrivacyPolicyView()), [Colors.blueGrey.shade400, Colors.blueGrey.shade700]),
+              _GridItem("Terms & Conditions", Icons.description_outlined, () => Get.to(() => const TermsAndConditionsView()), [Colors.grey.shade600, Colors.grey.shade800]),
+            ]),
+
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Reusable Stat Item
+  Widget _buildStatItem(dynamic icon, String value, String label, Color color) {
+    return Row(
+      children: [
+        icon is String
+            ? Image.asset(icon, width: 20, height: 20, color: color)
+            : Icon(icon, size: 20, color: color),
+        const SizedBox(width: 6),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: color,
+            shadows: [Shadow(color: color.withOpacity(0.5), blurRadius: 8)],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Fancy Section Title
+  Widget _buildFancySectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [primaryColor.withOpacity(0.8), secondaryColor.withOpacity(0.8)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: Colors.white, size: 24),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Grid Section Builder
+  Widget _buildGridSection(List<_GridItem> items) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.85,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return _buildGridCard(
+          title: item.title,
+          icon: item.icon,
+          onTap: item.onTap,
+          gradientColors: item.gradientColors,
+        );
+      },
+    );
+  }
+
+  // Fancy Grid Card
+  Widget _buildGridCard({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    required List<Color> gradientColors,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors[0].withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
               ),
             ),
           ],
@@ -502,4 +407,14 @@ class ProfileView extends GetView<ProfileController> {
       ),
     );
   }
+}
+
+// Grid Item Model
+class _GridItem {
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+  final List<Color> gradientColors;
+
+  _GridItem(this.title, this.icon, this.onTap, this.gradientColors);
 }
