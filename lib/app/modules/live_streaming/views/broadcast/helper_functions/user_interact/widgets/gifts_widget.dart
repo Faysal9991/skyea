@@ -29,32 +29,71 @@ class GiftsWidget extends StatelessWidget {
     });
     return Obx(() {
       if (streamingController.loadingGfitList.value) {
-        return const Center(
-          child: SpinKitChasingDots(
-            color: Colors.red,
-            size: 50.0,
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFFF7374F).withOpacity(0.2),
+                  const Color(0xFF88304E).withOpacity(0.2),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const SpinKitChasingDots(
+              color: Color(0xFFF7374F),
+              size: 50.0,
+            ),
           ),
         );
       }
-      return SizedBox(
-        // height: 260,
+      return Container(
         height: streamingController.listActiveCall.length == 1 &&
                 streamingController.channelName.value ==
                     authController.profile.value.user!.uid!.toString()
-            ? 260
-            : 300,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SizedBox(
-              height: 2,
+            ? 300
+            : 380,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color(0xFF2C2C2C),
+              const Color(0xFF1E1E1E),
+            ],
+          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFF7374F).withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
             ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Decorative top bar
+            Container(
+              height: 4,
+              width: 48,
+              margin: const EdgeInsets.only(top: 8, bottom: 6),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF7374F), Color(0xFF88304E)],
+                ),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Active users list
             SizedBox(
-              height: 42,
+              height: 60,
               child: Obx(
                 () {
                   return ListView.separated(
-                    padding: EdgeInsets.zero,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     physics: const BouncingScrollPhysics(),
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
@@ -63,7 +102,7 @@ class GiftsWidget extends StatelessWidget {
                       width: streamingController.listActiveCall[index]['uid'] ==
                               authController.profile.value.user!.uid!
                           ? 0
-                          : 4,
+                          : 8,
                     ),
                     itemBuilder: ((context, index) {
                       dynamic data = streamingController.listActiveCall[index];
@@ -82,142 +121,135 @@ class GiftsWidget extends StatelessWidget {
                           streamingController.listActiveCall
                               .insert(index, data);
                         },
-                        child: Container(
-                          width: 42,
-                          height: 42,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 52,
+                          height: 52,
                           decoration: BoxDecoration(
+                            gradient: data['selected'] == true
+                                ? const LinearGradient(
+                                    colors: [Color(0xFFF7374F), Color(0xFF88304E)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                            color: data['selected'] != true
+                                ? const Color(0xFF2C2C2C)
+                                : null,
+                            borderRadius: BorderRadius.circular(12.0),
                             border: Border.all(
-                              width:
-                                  data['selected'] == null || !data['selected']
-                                      ? 1
-                                      : 2,
-                              color:
-                                  data['selected'] == null || !data['selected']
-                                      ? Colors.grey
-                                      : Colors.red,
+                              width: data['selected'] == true ? 2 : 1,
+                              color: data['selected'] == true
+                                  ? const Color(0xFFFFD700)
+                                  : const Color(0xFF522546),
                             ),
-                            borderRadius: BorderRadius.circular(8.0),
+                            boxShadow: data['selected'] == true
+                                ? [
+                                    BoxShadow(
+                                      color: const Color(0xFFF7374F).withOpacity(0.4),
+                                      blurRadius: 12,
+                                      spreadRadius: 2,
+                                    ),
+                                  ]
+                                : null,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 28,
-                                height: 28,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        border: Border.all(
-                                          width: 2.0,
-                                          color: Colors.orange.shade600,
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 32,
+                                  height: 32,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(100.0),
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFFFFD700), Color(0xFFF7374F)],
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFFFFD700).withOpacity(0.3),
+                                              blurRadius: 8,
+                                            ),
+                                          ],
+                                        ),
+                                        padding: const EdgeInsets.all(2),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100.0),
+                                          child: data['profile_image'] == null
+                                              ? Image.asset(
+                                                  'assets/others/person.jpg',
+                                                  width: 28,
+                                                  height: 28,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : CachedNetworkImage(
+                                                  imageUrl:
+                                                      '${data['profile_image']}',
+                                                  width: 28,
+                                                  height: 28,
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (context, url) =>
+                                                      const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Color(0xFFF7374F),
+                                                    ),
+                                                  ),
+                                                ),
                                         ),
                                       ),
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
-                                        child: data['profile_image'] == null
-                                            ? Image.asset(
-                                                'assets/others/person.jpg',
-                                                width: data['vvip_or_vip_preference'] !=
-                                                            null &&
-                                                        data['vvip_or_vip_preference']
-                                                                [
-                                                                'vvip_or_vip_gif'] !=
-                                                            null
-                                                    ? 22
-                                                    : 28,
-                                                height: data['vvip_or_vip_preference'] !=
-                                                            null &&
-                                                        data['vvip_or_vip_preference']
-                                                                [
-                                                                'vvip_or_vip_gif'] !=
-                                                            null
-                                                    ? 22
-                                                    : 28,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : CachedNetworkImage(
-                                                imageUrl:
-                                                    '${data['profile_image']}',
-                                                width: data['vvip_or_vip_preference'] !=
-                                                            null &&
-                                                        data['vvip_or_vip_preference']
-                                                                [
-                                                                'vvip_or_vip_gif'] !=
-                                                            null
-                                                    ? 22
-                                                    : 28,
-                                                height: data['vvip_or_vip_preference'] !=
-                                                            null &&
-                                                        data['vvip_or_vip_preference']
-                                                                [
-                                                                'vvip_or_vip_gif'] !=
-                                                            null
-                                                    ? 22
-                                                    : 28,
-                                                fit: BoxFit.cover,
-                                                placeholder: (context, url) =>
-                                                    const Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
+                                      if (data['vvip_or_vip_preference'] != null &&
+                                          data['vvip_or_vip_preference']
+                                                  ['vvip_or_vip_gif'] !=
+                                              null)
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFFFFD700), Color(0xFFF7374F)],
                                               ),
-                                      ),
-                                    ),
-                                    data['vvip_or_vip_preference'] != null &&
-                                            data['vvip_or_vip_preference']
-                                                    ['vvip_or_vip_gif'] !=
-                                                null
-                                        ? Positioned(
-                                            bottom: 0,
-                                            right: 0,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.black38,
-                                                  // borderRadius: BorderRadius.only(
-                                                  //   bottomLeft: Radius.circular(20.0),
-                                                  //   bottomRight: Radius.circular(20.0),
-                                                  // ),
-                                                  border: Border.all(
-                                                    color:
-                                                        Colors.orange.shade600,
-                                                    // width: 2.0,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          100.0)),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        100.0),
-                                                child: CachedNetworkImage(
-                                                  imageUrl: data[
-                                                          'vvip_or_vip_preference']
-                                                      ['vvip_or_vip_gif'],
-                                                  width: 14,
-                                                  height: 14,
-                                                ),
+                                              borderRadius:
+                                                  BorderRadius.circular(100.0),
+                                            ),
+                                            padding: const EdgeInsets.all(1),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(100.0),
+                                              child: CachedNetworkImage(
+                                                imageUrl: data[
+                                                        'vvip_or_vip_preference']
+                                                    ['vvip_or_vip_gif'],
+                                                width: 14,
+                                                height: 14,
                                               ),
                                             ),
-                                          )
-                                        : Container(),
-                                  ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '#${data['uid']}',
-                                style: const TextStyle(
-                                  fontSize: 6,
-                                  fontWeight: FontWeight.bold,
+                                const SizedBox(height: 2),
+                                Text(
+                                  '#${data['uid']}',
+                                  style: TextStyle(
+                                    fontSize: 6,
+                                    fontWeight: FontWeight.bold,
+                                    color: data['selected'] == true
+                                        ? const Color(0xFFFFD700)
+                                        : Colors.white70,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -226,10 +258,14 @@ class GiftsWidget extends StatelessWidget {
                 },
               ),
             ),
+            
+            const SizedBox(height: 8),
+            
+            // Animated gifts section
             SizedBox(
-              height: 74,
+              height: 100,
               child: ListView.builder(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
@@ -245,10 +281,14 @@ class GiftsWidget extends StatelessWidget {
                 }),
               ),
             ),
+            
+            const SizedBox(height: 6),
+            
+            // Normal gifts section
             SizedBox(
-              height: 74,
+              height: 100,
               child: ListView.builder(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
@@ -263,6 +303,10 @@ class GiftsWidget extends StatelessWidget {
                 }),
               ),
             ),
+            
+            const SizedBox(height: 6),
+            
+            // Bottom action bar
             data['uid'] == authController.profile.value.user!.uid! &&
                     streamingController.listActiveCall.firstWhereOrNull((el) =>
                             el['selected'] != null &&
@@ -270,222 +314,238 @@ class GiftsWidget extends StatelessWidget {
                             el['uid'] !=
                                 authController.profile.value.user!.uid!) ==
                         null
-                ? const SizedBox(
-                    height: 50,
-                  )
-                : SizedBox(
-                    height: 50,
+                ? const SizedBox(height: 46)
+                : Container(
+                    height: 56,
+                    margin: const EdgeInsets.only(left: 14, right: 14, bottom: 14,top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF522546).withOpacity(0.6),
+                          const Color(0xFF88304E).withOpacity(0.4),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFF88304E).withOpacity(0.5),
+                        width: 1,
+                      ),
+                    ),
                     child: Row(
                       children: [
-                        const SizedBox(
-                          width: 24,
-                        ),
-                        // const Icon(
-                        //   Icons.diamond,
-                        //   color: Colors.blue,
-                        // ),
-                        Image.asset(
-                          'assets/others/diamond.png',
-                          width: 18,
-                          height: 18,
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        Obx(() {
-                          return Text(
-                            '${authController.profile.value.diamonds}',
-                            // style: const TextStyle(color: Colors.white),
-                          );
-                        }),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        rPrimaryElevatedButton(
-                            onPressed: () => Get.snackbar(
-                                  'Oops',
-                                  "Coming Soon!",
-                                  backgroundColor: Colors.orange,
-                                  colorText: Colors.white,
-                                  snackPosition: SnackPosition.TOP,
-                                ),
-                            primaryColor: Colors.green,
-                            buttonText: '+ Recharge',
-                            borderRadius: 8.0,
-                            fontSize: 12.0),
-                        // const SizedBox(
-                        //   width: 64,
-                        // ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Obx(() {
-                                return rPrimaryElevatedButton(
-                                    onPressed: () async {
-                                      if (streamingController
-                                              .selectedGift.value['id'] !=
-                                          0) {
-                                        List<dynamic> listReceiverIds = [];
-                                        String receiverFullNames = '';
-
-                                        int giftDiamonds = int.parse(
-                                            streamingController
-                                                .selectedGift.value['diamonds']
-                                                .toString());
-                                        List<dynamic> listReceiver =
-                                            streamingController.listActiveCall
-                                                .where((el) =>
-                                                    el['selected'] != null &&
-                                                    el['selected'] == true)
-                                                .toList();
-                                        if (listReceiver.isNotEmpty) {
-                                          giftDiamonds *= listReceiver.length;
-                                          for (int i = 0;
-                                              i < listReceiver.length;
-                                              i++) {
-                                            dynamic receiverData =
-                                                listReceiver[i];
-                                            listReceiverIds
-                                                .add(receiverData['uid']);
-                                            if (i == listReceiver.length - 1) {
-                                              receiverFullNames +=
-                                                  '${receiverData['full_name']}';
-                                            } else {
-                                              receiverFullNames +=
-                                                  '${receiverData['full_name']}, ';
-                                            }
-                                          }
-                                        } else {
-                                          listReceiverIds.add(data['uid']);
-                                          receiverFullNames = data['full_name'];
-                                        }
-                                        if (authController
-                                                .profile.value.diamonds! <
-                                            giftDiamonds) {
-                                          Get.snackbar(
-                                            'Failed',
-                                            "You've no sufficient diamonds. Please +Recharge.",
-                                            backgroundColor: Colors.red,
-                                            colorText: Colors.white,
-                                            snackPosition: SnackPosition.TOP,
-                                          );
-                                          return;
-                                        }
-                                        if (streamingController
-                                                .loadingGiftSend.value !=
-                                            -1) {
-                                          return;
-                                        }
-
-                                        // dynamic roomSocketData = {
-                                        //   'type': 'gift',
-                                        //   'action': 'activity',
-                                        //   'uid': authController
-                                        //       .profile.value.user!.uid!,
-                                        //   'sender_uid': authController
-                                        //       .profile.value.user!.uid!,
-                                        //   // 'receiver_uid': data['uid'],
-                                        //   'receiver_uids': listReceiverIds,
-                                        //   'full_name': authController
-                                        //       .profile.value.full_name,
-                                        //   'receiver_full_name':
-                                        //       receiverFullNames,
-                                        //   'profile_image': authController
-                                        //           .profile
-                                        //           .value
-                                        //           .profile_image ??
-                                        //       authController
-                                        //           .profile.value.photo_url,
-                                        //   'level': authController
-                                        //       .profile.value.level,
-                                        //   'gift_type': streamingController
-                                        //       .selectedGift.value['gift_type']
-                                        //       .toString(),
-                                        //   'gift_id': int.parse(
-                                        //       streamingController
-                                        //           .selectedGift.value['id']
-                                        //           .toString()),
-                                        //   'gift_diamonds': giftDiamonds,
-                                        //   'diamonds': int.parse(
-                                        //       streamingController.selectedGift
-                                        //           .value['diamonds']
-                                        //           .toString()),
-                                        //   'vat': int.parse(streamingController
-                                        //       .selectedGift.value['vat']
-                                        //       .toString()),
-                                        //   'gift_image': streamingController
-                                        //       .selectedGift.value['gift_image']
-                                        //       .toString(),
-                                        //   'gif': streamingController
-                                        //       .selectedGift.value['gif']
-                                        //       .toString(),
-                                        //   'audio': streamingController
-                                        //       .selectedGift.value['audio']
-                                        //       .toString(),
-                                        //   'vvip_or_vip_preference':
-                                        //       authController.profile.value
-                                        //           .vvip_or_vip_preference,
-                                        // };
-                                        // onUpdateAction(roomSocketData);
-                                        await streamingController
-                                            .tryToSendGiftOnLiveStreaming(
-                                          channelName: streamingController
-                                              .channelName.value,
-                                          // receiverUid: data['uid'],
-                                          giftType: streamingController
-                                              .selectedGift.value['gift_type']
-                                              .toString(),
-                                          giftId: int.parse(streamingController
-                                              .selectedGift.value['id']
-                                              .toString()),
-                                          context: context,
-                                          totalDiamonds: giftDiamonds,
-                                          diamonds: int.parse(
-                                              streamingController.selectedGift
-                                                  .value['diamonds']
-                                                  .toString()),
-                                          vat: int.parse(streamingController
-                                              .selectedGift.value['vat']
-                                              .toString()),
-                                          receiverFullNames: receiverFullNames,
-                                          receiverUids: listReceiverIds,
-                                          giftImage: streamingController
-                                              .selectedGift.value['gift_image']
-                                              .toString(),
-                                          gif: streamingController
-                                              .selectedGift.value['gif']
-                                              .toString(),
-                                          audio: streamingController
-                                              .selectedGift.value['audio']
-                                              .toString(),
-                                        );
-                                        // if (result) {
-                                        //   // Get.back();
-                                        //   // Navigator.of(context).pop();
-                                        // }
-                                      }
-                                    },
-                                    primaryColor: streamingController
-                                                .selectedGift.value['id'] !=
-                                            0
-                                        ? Colors.orange
-                                        : Colors.grey,
-                                    buttonTextColor: Colors.white,
-                                    borderRadius: 8.0,
-                                    buttonText: streamingController
-                                                .loadingGiftSend.value !=
-                                            -1
-                                        ? 'Wait...'
-                                        : 'Send',
-                                    fontSize: 12.0);
-                              }),
-                              const SizedBox(
-                                width: 24,
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFFD700).withOpacity(0.3),
+                                blurRadius: 8,
                               ),
                             ],
                           ),
+                          child: Image.asset(
+                            'assets/others/diamond.png',
+                            width: 16,
+                            height: 16,
+                          ),
                         ),
+                        const SizedBox(width: 6),
+                        Obx(() {
+                          return Text(
+                            '${authController.profile.value.diamonds}',
+                            style: const TextStyle(
+                              color: Color(0xFFFFD700),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }),
+                        const SizedBox(width: 6),
+                        Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF00C853), Color(0xFF64DD17)],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00C853).withOpacity(0.3),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => Get.snackbar(
+                              'Oops',
+                              "Coming Soon!",
+                              backgroundColor: const Color(0xFFF7374F),
+                              colorText: Colors.white,
+                              snackPosition: SnackPosition.TOP,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              '+ Recharge',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Obx(() {
+                          return Container(
+                            height: 36,
+                            decoration: BoxDecoration(
+                              gradient: streamingController
+                                          .selectedGift.value['id'] !=
+                                      0
+                                  ? const LinearGradient(
+                                      colors: [Color(0xFFF7374F), Color(0xFF88304E)],
+                                    )
+                                  : null,
+                              color: streamingController
+                                          .selectedGift.value['id'] ==
+                                      0
+                                  ? const Color(0xFF522546)
+                                  : null,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: streamingController
+                                          .selectedGift.value['id'] !=
+                                      0
+                                  ? [
+                                      BoxShadow(
+                                        color: const Color(0xFFF7374F).withOpacity(0.4),
+                                        blurRadius: 12,
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (streamingController
+                                        .selectedGift.value['id'] !=
+                                    0) {
+                                  List<dynamic> listReceiverIds = [];
+                                  String receiverFullNames = '';
+
+                                  int giftDiamonds = int.parse(
+                                      streamingController
+                                          .selectedGift.value['diamonds']
+                                          .toString());
+                                  List<dynamic> listReceiver =
+                                      streamingController.listActiveCall
+                                          .where((el) =>
+                                              el['selected'] != null &&
+                                              el['selected'] == true)
+                                          .toList();
+                                  if (listReceiver.isNotEmpty) {
+                                    giftDiamonds *= listReceiver.length;
+                                    for (int i = 0;
+                                        i < listReceiver.length;
+                                        i++) {
+                                      dynamic receiverData =
+                                          listReceiver[i];
+                                      listReceiverIds
+                                          .add(receiverData['uid']);
+                                      if (i == listReceiver.length - 1) {
+                                        receiverFullNames +=
+                                            '${receiverData['full_name']}';
+                                      } else {
+                                        receiverFullNames +=
+                                            '${receiverData['full_name']}, ';
+                                      }
+                                    }
+                                  } else {
+                                    listReceiverIds.add(data['uid']);
+                                    receiverFullNames = data['full_name'];
+                                  }
+                                  if (authController
+                                          .profile.value.diamonds! <
+                                      giftDiamonds) {
+                                    Get.snackbar(
+                                      'Failed',
+                                      "You've no sufficient diamonds. Please +Recharge.",
+                                      backgroundColor: const Color(0xFFF7374F),
+                                      colorText: Colors.white,
+                                      snackPosition: SnackPosition.TOP,
+                                    );
+                                    return;
+                                  }
+                                  if (streamingController
+                                          .loadingGiftSend.value !=
+                                      -1) {
+                                    return;
+                                  }
+
+                                  await streamingController
+                                      .tryToSendGiftOnLiveStreaming(
+                                    channelName: streamingController
+                                        .channelName.value,
+                                    giftType: streamingController
+                                        .selectedGift.value['gift_type']
+                                        .toString(),
+                                    giftId: int.parse(streamingController
+                                        .selectedGift.value['id']
+                                        .toString()),
+                                    context: context,
+                                    totalDiamonds: giftDiamonds,
+                                    diamonds: int.parse(
+                                        streamingController.selectedGift
+                                            .value['diamonds']
+                                            .toString()),
+                                    vat: int.parse(streamingController
+                                        .selectedGift.value['vat']
+                                        .toString()),
+                                    receiverFullNames: receiverFullNames,
+                                    receiverUids: listReceiverIds,
+                                    giftImage: streamingController
+                                        .selectedGift.value['gift_image']
+                                        .toString(),
+                                    gif: streamingController
+                                        .selectedGift.value['gif']
+                                        .toString(),
+                                    audio: streamingController
+                                        .selectedGift.value['audio']
+                                        .toString(),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                streamingController.loadingGiftSend.value != -1
+                                    ? 'Wait...'
+                                    : 'Send',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -511,23 +571,17 @@ class giftItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: InkWell(
         onTap: () async {
           if (authController.profile.value.diamonds! < giftData['diamonds']) {
             Get.snackbar(
               'Failed',
               "You've no sufficient diamonds. Please +Recharge.",
-              backgroundColor: Colors.red,
+              backgroundColor: const Color(0xFFF7374F),
               colorText: Colors.white,
               snackPosition: SnackPosition.TOP,
             );
-            // rShowSnackBar(
-            //   context: context,
-            //   title: "You've no sufficient diamonds. Please +Recharge.",
-            //   color: Colors.red,
-            //   durationInSeconds: 3,
-            // );
             return;
           }
           streamingController.setSelectedGift(
@@ -541,64 +595,104 @@ class giftItem extends StatelessWidget {
           );
         },
         child: Obx(() {
-          return Container(
+          bool isSelected = (streamingController.selectedGift.value['id'] ==
+                      giftData['id'] &&
+                  streamingController.selectedGift.value['gift_type'] ==
+                      'animation' &&
+                  giftData['gif'] != null) ||
+              (streamingController.selectedGift.value['id'] ==
+                      giftData['id'] &&
+                  streamingController.selectedGift.value['gift_type'] ==
+                      'normal' &&
+                  giftData['gift_image'] != null);
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 66,
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
+              gradient: isSelected
+                  ? const LinearGradient(
+                      colors: [Color(0xFFF7374F), Color(0xFF88304E)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : LinearGradient(
+                      colors: [
+                        const Color(0xFF2C2C2C).withOpacity(0.6),
+                        const Color(0xFF1E1E1E).withOpacity(0.6),
+                      ],
+                    ),
+              borderRadius: BorderRadius.circular(12.0),
               border: Border.all(
-                color: (streamingController.selectedGift.value['id'] ==
-                                giftData['id'] &&
-                            streamingController
-                                    .selectedGift.value['gift_type'] ==
-                                'animation' &&
-                            giftData['gif'] != null) ||
-                        (streamingController.selectedGift.value['id'] ==
-                                giftData['id'] &&
-                            streamingController
-                                    .selectedGift.value['gift_type'] ==
-                                'normal' &&
-                            giftData['gift_image'] != null)
-                    ? Theme.of(context).primaryColor
-                    : Colors.transparent,
+                color: isSelected
+                    ? const Color(0xFFFFD700)
+                    : const Color(0xFF522546).withOpacity(0.5),
+                width: isSelected ? 2 : 1,
               ),
-              borderRadius: BorderRadius.circular(8.0),
-              color: Colors.black12,
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFF7374F).withOpacity(0.4),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                CachedNetworkImage(
-                  imageUrl: giftData['gif'] ?? giftData['gift_image'],
-                  width: 46,
-                  height: 46,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => const Center(
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CachedNetworkImage(
+                    imageUrl: giftData['gif'] ?? giftData['gift_image'],
+                    width: 38,
+                    height: 38,
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => const Center(
                       child: CircularProgressIndicator(
-                    color: Colors.red,
-                  )),
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/others/diamond.png',
-                      width: 18,
-                      height: 18,
-                    ),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    Text(
-                      '${giftData['diamonds']}',
-                      style: const TextStyle(
-                        fontSize: 12,
+                        color: Color(0xFFF7374F),
+                        strokeWidth: 2,
                       ),
                     ),
-                  ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/others/diamond.png',
+                        width: 14,
+                        height: 14,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        '${giftData['diamonds']}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

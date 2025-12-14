@@ -81,7 +81,7 @@ Widget rPrimaryTextField({
     );
 
 Widget rPrimaryElevatedButton({
-  required VoidCallback onPressed,
+  required VoidCallback? onPressed,
   required primaryColor,
   Size? fixedSize,
   required String buttonText,

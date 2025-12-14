@@ -2,11 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:doyel_live/app/modules/live_streaming/controllers/live_streaming_controller.dart';
 import 'package:doyel_live/app/modules/messenger/utils/utils.dart';
 import 'package:doyel_live/app/modules/messenger/views/messages/message_view.dart';
+import 'package:doyel_live/app/modules/splash/views/splash_view.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:doyel_live/app/modules/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:doyel_live/app/modules/profile/controllers/profile_controller.dart';
+
 
 void showUserInfoBottomSheet({
   required BuildContext context,
@@ -31,15 +33,9 @@ void showUserInfoBottomSheet({
       uid: authController.profile.value.user!.uid!,
       peeredUserId: data['uid'],
     );
-    // Get.to(
-    //   () => MessagesView(
-    //     profile: profile,
-    //     chatId: chatId,
-    //   ),
-    //   fullscreenDialog: true,
-    // );
+
     return data['uid'] == authController.profile.value.user!.uid
-        ? Container()
+        ? const SizedBox()
         : Expanded(
             child: MessagesView(
               profile: profile,
@@ -51,520 +47,304 @@ void showUserInfoBottomSheet({
 
   showModalBottomSheet(
     context: context,
-    barrierColor: Colors.transparent,
+    barrierColor: Colors.black.withOpacity(0.7),
     enableDrag: false,
     isScrollControlled: true,
+    backgroundColor: Colors.transparent,
     builder: (context) {
-      // if (authController.showingOverlay.value) {
-      //   Navigator.of(context).pop();
-      // }
       return SafeArea(
         child: Obx(() {
           if (profileController.loadingProfileForUserInfo.value) {
-            // Displaying LoadingSpinner to indicate waiting state
-            return SizedBox(
-              height: data['uid'] != authController.profile.value.user!.uid
-                  ? 260
-                  : 160,
-              // decoration: BoxDecoration(
-              //   gradient: Palette.linearGradient2,
-              // ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Center(
-                    child: SpinKitHourGlass(color: Colors.red, size: 50.0),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * .60,
-                          ),
-                          child: Text(
-                            "${data['full_name']}",
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'ID: ${data['uid']}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
+            return Container(
+              height: data['uid'] != authController.profile.value.user!.uid ? 280 : 180,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [backgroundColor, surfaceColor],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
                 ],
               ),
-            );
-          } else if (profileController.profileForUserInfo != null) {
-            final profileData = profileController.profileForUserInfo;
-            profileData['uid'] = data['uid'];
-
-            return Container(
-              height:
-                  //  streamingController.channelName.value ==
-                  //             authController.profile.value.user!.uid.toString() &&
-                  profileData['uid'] != authController.profile.value.user!.uid
-                  ? MediaQuery.of(context).size.height * .70
-                  : 160,
-              // decoration: BoxDecoration(
-              //   gradient: Palette.linearGradient2,
-              // ),
-              color: Colors.black,
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    top: 30,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        // color: Theme.of(context).primaryColor,
-                        // color: Colors.black54,
-                        // gradient: LinearGradient(
-                        //   colors: [
-                        //     Colors.black38,
-                        //     Colors.black26,
-                        //     Colors.black12,
-                        //   ],
-                        //   begin: Alignment.bottomLeft,
-                        //   end: Alignment.topRight,
-                        // ),
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 50),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              profileData['vvip_or_vip_preference'] != null &&
-                                      profileData['vvip_or_vip_preference']['vvip_or_vip_gif'] !=
-                                          null
-                                  ? Container(
-                                      margin: const EdgeInsets.only(right: 8),
-                                      child: Text(
-                                        'L.V.${data['level'] != null ? data['level']['level'] : 0}',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                              Center(
-                                child: Container(
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width * .60,
-                                  ),
-                                  child: Text(
-                                    "${profileData['full_name']}",
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'ID: ${profileData['uid']}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        'assets/others/diamond.png',
-                                        width: 16,
-                                        height: 16,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${profileData['diamonds']}',
-                                        // '${(profileData['sender_diamonds'] ?? profileData['diamonds']) / 1000}K',
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    '⭐ ${profileData['diamonds'] != null ? (profileData['diamonds'] < 100000 ? 0 : (profileData['diamonds'] / 100000).floor()) : 0}',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          // const SizedBox(
-                          //   height: 8,
-                          // ),
-                          // Center(
-                          //   child: Text(
-                          //     'User Id: ${profileData['uid']}',
-                          //     style: const TextStyle(
-                          //       fontSize: 14,
-                          //       fontWeight: FontWeight.w700,
-                          //     ),
-                          //   ),
-                          // ),
-                          const SizedBox(height: 8),
-                          profileData['uid'] !=
-                                  authController.profile.value.user!.uid!
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: () async {
-                                        if (profileController
-                                                .loadingPerformFollow
-                                                .value ==
-                                            profileData['uid']) {
-                                          return;
-                                        }
-                                        List<dynamic> followers =
-                                            await profileController
-                                                .performFollow(
-                                                  uid: profileData['uid'],
-                                                );
-                                        profileController.setAccountFollowers(
-                                          followers,
-                                        );
-                                        onUpdateAction({
-                                          'action': 'followers',
-                                          'uid': profileData['uid'],
-                                          'followers': followers,
-                                        });
-                                      },
-                                      icon: Obx(() {
-                                        return profileController
-                                                    .loadingPerformFollow
-                                                    .value !=
-                                                profileData['uid']
-                                            ? Icon(
-                                                !profileController
-                                                        .accountFollowers
-                                                        .contains(
-                                                          authController
-                                                              .profile
-                                                              .value
-                                                              .user!
-                                                              .uid!,
-                                                        )
-                                                    ? Icons.add
-                                                    : Icons.remove,
-                                                // color: !profileController
-                                                //         .accountFollowers
-                                                //         .contains(authController
-                                                //             .profile
-                                                //             .value
-                                                //             .user!
-                                                //             .uid!)
-                                                //     ? Colors.blue
-                                                //     : Colors.red,
-                                                color: Colors.white,
-                                                size: 12,
-                                              )
-                                            : Icon(
-                                                Icons.refresh_rounded,
-                                                color: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                size: 12,
-                                              );
-                                      }),
-                                      label: Obx(() {
-                                        return !profileController
-                                                .accountFollowers
-                                                .contains(
-                                                  authController
-                                                      .profile
-                                                      .value
-                                                      .user!
-                                                      .uid!,
-                                                )
-                                            ? const Text(
-                                                'Follow',
-                                                style: TextStyle(fontSize: 12),
-                                              )
-                                            : const Text(
-                                                'Unfollow',
-                                                style: TextStyle(fontSize: 12),
-                                              );
-                                      }),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    streamingController.channelName.value ==
-                                            authController
-                                                .profile
-                                                .value
-                                                .user!
-                                                .uid
-                                                .toString()
-                                        ? ElevatedButton.icon(
-                                            onPressed: () async {
-                                              if (profileController
-                                                      .loadingPerformBlock
-                                                      .value ==
-                                                  profileData['uid']) {
-                                                return;
-                                              }
-                                              List<dynamic> blocks =
-                                                  await profileController
-                                                      .performBlock(
-                                                        uid: profileData['uid'],
-                                                      );
-                                              onUpdateAction({
-                                                'action': 'blocks',
-                                                'uid': profileData['uid'],
-                                                'blocks': blocks,
-                                              });
-                                            },
-                                            icon: Obx(() {
-                                              return profileController
-                                                          .loadingPerformBlock
-                                                          .value !=
-                                                      profileData['uid']
-                                                  ? Icon(
-                                                      !authController
-                                                              .profile
-                                                              .value
-                                                              .blocks!
-                                                              .contains(
-                                                                profileData['uid'],
-                                                              )
-                                                          ? Icons.block
-                                                          : Icons.flag,
-                                                      color: Colors.white,
-                                                      size: 12,
-                                                    )
-                                                  : Icon(
-                                                      Icons.refresh_rounded,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                      size: 12,
-                                                    );
-                                            }),
-                                            label: Obx(() {
-                                              return !authController
-                                                      .profile
-                                                      .value
-                                                      .blocks!
-                                                      .contains(
-                                                        profileData['uid'],
-                                                      )
-                                                  ? const Text(
-                                                      'Block',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    )
-                                                  : const Text(
-                                                      'Unblock',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                      ),
-                                                    );
-                                            }),
-                                          )
-                                        : Container(),
-
-                                    // Container(
-                                    //   constraints: const BoxConstraints(
-                                    //       maxHeight: 40, maxWidth: 40),
-                                    //   child: IconButton(
-                                    //     icon: const Icon(
-                                    //       Icons.chat,
-                                    //       color: Colors.white,
-                                    //     ),
-                                    //     iconSize: 32,
-                                    //     onPressed: () {
-                                    //       if (!streamingController
-                                    //           .isBroadcaster.value) {
-                                    //         rShowAlertDialog2(
-                                    //           context: context,
-                                    //           title: 'Not allowed',
-                                    //           content:
-                                    //               'Only host can go into Inbox',
-                                    //           onConfirm: () {
-                                    //             Navigator.pop(context);
-                                    //           },
-                                    //         );
-                                    //         return;
-                                    //       }
-                                    //       dynamic profile = {
-                                    //         'profile_image': profileData[
-                                    //                     'profile_image'] ==
-                                    //                 ''
-                                    //             ? null
-                                    //             : profileData[
-                                    //                 'profile_image'],
-                                    //         'full_name':
-                                    //             profileData['full_name'],
-                                    //         'user': {
-                                    //           'uid': profileData['uid']
-                                    //         },
-                                    //       };
-                                    //       String chatId = getChatId(
-                                    //         uid: authController
-                                    //             .profile.value.user!.uid!,
-                                    //         peeredUserId: profileData['uid'],
-                                    //       );
-                                    //       authController.setShowingOverlay(
-                                    //           overlay: true);
-                                    //       Get.to(
-                                    //         () => MessagesView(
-                                    //           profile: profile,
-                                    //           chatId: chatId,
-                                    //         ),
-                                    //         fullscreenDialog: true,
-                                    //       );
-                                    //     },
-                                    //   ),
-                                    // ),
-                                  ],
-                                )
-                              : Container(),
-
-                          _messageWidget(data: data),
-                        ],
-                      ),
-                    ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SpinKitHourGlass(color: primaryColor, size: 50.0),
+                  const SizedBox(height: 16),
+                  Text(
+                    data['full_name'] ?? '',
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child:
-                            data['profile_image'] == null &&
-                                data['photo_url'] == null
-                            ? Image.asset(
-                                'assets/others/person.jpg',
-                                width: 64,
-                                height: 64,
-                                fit: BoxFit.cover,
-                              )
-                            : CachedNetworkImage(
-                                imageUrl:
-                                    data['profile_image'] ?? data['photo_url'],
-                                width: 64,
-                                height: 64,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 40,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child:
-                          profileData['vvip_or_vip_preference'] != null &&
-                              profileData['vvip_or_vip_preference']['vvip_or_vip_gif'] !=
-                                  null
-                          ? Container(
-                              margin: const EdgeInsets.only(left: 60),
-                              decoration: BoxDecoration(
-                                color: Colors.black38,
-                                // borderRadius: BorderRadius.only(
-                                //   bottomLeft: Radius.circular(20.0),
-                                //   bottomRight: Radius.circular(20.0),
-                                // ),
-                                border: Border.all(
-                                  color: Colors.orange.shade600,
-                                  // width: 2.0,
-                                ),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100.0),
-                                child: CachedNetworkImage(
-                                  imageUrl:
-                                      profileData['vvip_or_vip_preference']['vvip_or_vip_gif'],
-                                  width: 28,
-                                  height: 28,
-                                ),
-                              ),
-                            )
-                          : Container(
-                              width: 20,
-                              height: 20,
-                              margin: const EdgeInsets.only(left: 60),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${data['level'] != null ? data['level']['level'] : 0}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'ID: ${data['uid']}',
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
               ),
             );
           }
+
+          if (profileController.profileForUserInfo == null) {
+            return Container(
+              height: 200,
+              alignment: Alignment.center,
+              child: Text('Error loading profile', style: TextStyle(color: Colors.white70)),
+            );
+          }
+
+          final profileData = profileController.profileForUserInfo!;
+          profileData['uid'] = data['uid'];
+
+          bool isOwnProfile = profileData['uid'] == authController.profile.value.user!.uid;
+
           return Container(
-            height: data['uid'] != authController.profile.value.user!.uid
-                ? 260
-                : 160,
-            // decoration: BoxDecoration(
-            //   gradient: Palette.linearGradient2,
-            // ),
-            child: const Center(
-              child: Text(
-                'Error occurred',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            height: isOwnProfile ? 180 : MediaQuery.of(context).size.height * 0.70,
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [backgroundColor, surfaceColor],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: primaryColor.withOpacity(0.4), width: 1.5),
+              boxShadow: [
+                BoxShadow(color: primaryColor.withOpacity(0.25), blurRadius: 30, spreadRadius: 5),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Main Content Card
+                Positioned(
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: surfaceColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(28),
+                        topRight: Radius.circular(28),
+                      ),
+                    ),
+                  
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 60),
+
+                        // Name & Level
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+
+                            if (profileData['vvip_or_vip_preference']?['vvip_or_vip_gif'] != null)
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [goldAccent, Colors.orange]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'L.V.${data['level']?['level'] ?? 0}',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
+                            Flexible(
+                              child: Text(
+                                profileData['full_name'] ?? '',
+                                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // ID, Diamonds, Stars
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('ID: ${profileData['uid']}', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                            const SizedBox(width: 16),
+                            Row(
+                              children: [
+                                Image.asset('assets/others/diamond.png', width: 18, height: 18, color: goldAccent),
+                                const SizedBox(width: 6),
+                                Text('${profileData['diamonds'] ?? 0}', style: TextStyle(color: goldAccent, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              '⭐ ${(profileData['diamonds'] ?? 0) < 100000 ? 0 : (profileData['diamonds'] / 100000).floor()}',
+                              style: const TextStyle(color: Colors.yellow, fontSize: 13),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Action Buttons (Follow / Block)
+                        if (!isOwnProfile)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  if (profileController.loadingPerformFollow.value == profileData['uid']) return;
+                                  List<dynamic> followers = await profileController.performFollow(uid: profileData['uid']);
+                                  profileController.setAccountFollowers(followers);
+                                  onUpdateAction({
+                                    'action': 'followers',
+                                    'uid': profileData['uid'],
+                                    'followers': followers,
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                ),
+                                icon: Obx(() => profileController.loadingPerformFollow.value != profileData['uid']
+                                    ? Icon(
+                                        profileController.accountFollowers.contains(authController.profile.value.user!.uid!)
+                                            ? Icons.check
+                                            : Icons.person_add,
+                                        size: 18,
+                                      )
+                                    : const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))),
+                                label: Obx(() => Text(
+                                      profileController.accountFollowers.contains(authController.profile.value.user!.uid!) ? 'Following' : 'Follow',
+                                      style: const TextStyle(fontSize: 13),
+                                    )),
+                              ),
+                              const SizedBox(width: 12),
+                              if (streamingController.channelName.value == authController.profile.value.user!.uid.toString())
+                                ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (profileController.loadingPerformBlock.value == profileData['uid']) return;
+                                    List<dynamic> blocks = await profileController.performBlock(uid: profileData['uid']);
+                                    onUpdateAction({
+                                      'action': 'blocks',
+                                      'uid': profileData['uid'],
+                                      'blocks': blocks,
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.redAccent,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                  icon: Obx(() => profileController.loadingPerformBlock.value != profileData['uid']
+                                      ? Icon(
+                                          authController.profile.value.blocks!.contains(profileData['uid']) ? Icons.check_circle : Icons.block,
+                                          size: 18,
+                                        )
+                                      : const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))),
+                                  label: Obx(() => Text(
+                                        authController.profile.value.blocks!.contains(profileData['uid']) ? 'Blocked' : 'Block',
+                                        style: const TextStyle(fontSize: 13),
+                                      )),
+                                ),
+                            ],
+                          ),
+
+                        const SizedBox(height: 16),
+
+                        // Message View
+                        _messageWidget(data: data),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Profile Avatar (Floating on top)
+                Positioned(
+                  top: 12,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [primaryColor, secondaryColor]),
+                        boxShadow: [
+                          BoxShadow(color: primaryColor.withOpacity(0.6), blurRadius: 20, spreadRadius: 5),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: data['profile_image'] == null && data['photo_url'] == null
+                            ? Image.asset('assets/others/person.jpg', width: 86, height: 86, fit: BoxFit.cover)
+                            : CachedNetworkImage(
+                                imageUrl: data['profile_image'] ?? data['photo_url'],
+                                width: 86,
+                                height: 86,
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) => Container(color: surfaceColor, child: const CircularProgressIndicator(color: primaryColor)),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // VIP / Level Badge - FIXED POSITIONING
+                if (profileData['vvip_or_vip_preference']?['vvip_or_vip_gif'] != null)
+                  Positioned(
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 50),
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: goldAccent, width: 2),
+                          boxShadow: [BoxShadow(color: goldAccent.withOpacity(0.6), blurRadius: 12)],
+                        ),
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: profileData['vvip_or_vip_preference']['vvip_or_vip_gif'],
+                            width: 36,
+                            height: 36,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                else if (!isOwnProfile)
+                  Positioned(
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 50),
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: primaryColor,
+                          child: Text(
+                            '${data['level']?['level'] ?? 0}',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           );
         }),
