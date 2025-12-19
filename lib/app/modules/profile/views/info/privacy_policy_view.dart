@@ -122,7 +122,7 @@ const htmlData = r"""
                   this page.
                 </p> <p>This policy is effective as of 2023-11-16</p> <p><strong>Contact Us</strong></p> <p>
                   If you have any questions or suggestions about our
-                  Privacy Policy, do not hesitate to contact us at toplive46@gmail.com.
+                  Privacy Policy, do not hesitate to contact us at isky47361@gmail.com.
                 </p>
                 </div>
 """;

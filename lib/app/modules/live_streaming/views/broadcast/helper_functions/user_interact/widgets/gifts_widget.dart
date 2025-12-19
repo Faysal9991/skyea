@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:doyel_live/app/modules/auth/controllers/auth_controller.dart';
 import 'package:doyel_live/app/modules/live_streaming/controllers/live_streaming_controller.dart';
-import 'package:doyel_live/app/widgets/reusable_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,11 +48,8 @@ class GiftsWidget extends StatelessWidget {
         );
       }
       return Container(
-        height: streamingController.listActiveCall.length == 1 &&
-                streamingController.channelName.value ==
-                    authController.profile.value.user!.uid!.toString()
-            ? 300
-            : 380,
+   
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -73,6 +69,8 @@ class GiftsWidget extends StatelessWidget {
           ],
         ),
         child: Column(
+              mainAxisSize: MainAxisSize.min, // ADD THIS LINE
+
           children: [
             // Decorative top bar
             Container(
@@ -380,7 +378,8 @@ class GiftsWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: ElevatedButton(
+                          child:
+                           ElevatedButton(
                             onPressed: () => Get.snackbar(
                               'Oops',
                               "Coming Soon!",
@@ -435,8 +434,8 @@ class GiftsWidget extends StatelessWidget {
                                     ]
                                   : null,
                             ),
-                            child: ElevatedButton(
-                              onPressed: () async {
+                            child:Obx(()=>        ElevatedButton(
+                              onPressed:streamingController.isLoading.value?null: () async {
                                 if (streamingController
                                         .selectedGift.value['id'] !=
                                     0) {
@@ -544,7 +543,9 @@ class GiftsWidget extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          );
+                    )
+                            
+                           );
                         }),
                       ],
                     ),

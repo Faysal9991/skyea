@@ -22,10 +22,10 @@ void showUserInteractBottomSheet({
     enableDrag: true,
     builder: (context) {
       return DraggableScrollableSheet(
-        initialChildSize: 0.55,
+        initialChildSize: 0.65,
         minChildSize: 0.4,
         maxChildSize: 0.9,
-        builder: (_, scrollController) {
+        builder: (context, scrollController) {
           return Container(
             decoration: const BoxDecoration(
               color: Color(0xFF121212),
@@ -40,12 +40,12 @@ void showUserInteractBottomSheet({
             ),
             child: Column(
               children: [
-                // Drag Handle + Tab Header
+                // Fixed Header with Tabs
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     color: Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   ),
                   child: Column(
                     children: [
@@ -84,7 +84,7 @@ void showUserInteractBottomSheet({
 
                       const SizedBox(height: 8),
 
-                      // Animated Underline Indicator
+                      // Animated Underline
                       Obx(() {
                         bool isGifts = streamingController.userInteractTab.value == 'gifts';
                         return AnimatedAlign(
@@ -105,29 +105,25 @@ void showUserInteractBottomSheet({
                   ),
                 ),
 
-                // Scrollable Content
+                // Scrollable + Expandable Content Area
                 Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    physics: const BouncingScrollPhysics(),
-                    child: Obx(() {
-                      if (streamingController.userInteractTab.value == 'gifts') {
-                        return GiftsWidget(
-                          data: data,
-                          streamingController: streamingController,
-                          authController: authController,
-                          onUpdateAction: onUpdateAction,
-                        );
-                      } else if (streamingController.userInteractTab.value == 'contributors') {
-                        return ContributorsWidget(
-                          streamingController: streamingController,
-                          data: data,
-                          onUpdateAction: onUpdateAction,
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }),
-                  ),
+                  child: Obx(() {
+                    if (streamingController.userInteractTab.value == 'gifts') {
+                      return GiftsWidget(
+                        data: data,
+                        streamingController: streamingController,
+                        authController: authController,
+                        onUpdateAction: onUpdateAction,
+                      );
+                    } else if (streamingController.userInteractTab.value == 'contributors') {
+                      return ContributorsWidget(
+                        streamingController: streamingController,
+                        data: data,
+                        onUpdateAction: onUpdateAction,
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
                 ),
               ],
             ),
@@ -137,7 +133,6 @@ void showUserInteractBottomSheet({
     },
   );
 }
-
 // Reusable Tab Item Widget
 Widget _buildTabItem({
   String? icon,
