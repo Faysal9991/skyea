@@ -1,4 +1,3 @@
-import 'package:doyel_live/app/utils/constants.dart';
 
 // Real Device
 // const host = '192.168.0.205:8000';
@@ -6,7 +5,9 @@ import 'package:doyel_live/app/utils/constants.dart';
 // const host = '10.0.2.2:8000';
 
 // Recent
-const host = 'doyellive.mmpvtltd.xyz';
+import 'constants.dart';
+
+const host = 'dashboard.skyapp.name';
 // const kDomain = 'http://$host';
 const kDomain = 'https://$host';
 const _baseUrl = '$kDomain/api/v1';

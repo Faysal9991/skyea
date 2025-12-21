@@ -19,16 +19,15 @@ import 'package:doyel_live/app/utils/constants.dart';
 import 'package:doyel_live/app/utils/drf_api_key.dart';
 import 'package:doyel_live/app/utils/firebase_stuffs/firebase_functions.dart';
 import 'package:doyel_live/app/utils/firebase_stuffs/helper_functions.dart';
-import 'package:doyel_live/app/widgets/custom_tab_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:new_version_plus/new_version_plus.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:motion_tab_bar/MotionTabBar.dart';
 
 import 'package:get/get.dart';
 import '../controllers/nav_controller.dart';
 
 class NavView extends StatefulWidget {
-  NavView({Key? key}) : super(key: key);
+  const NavView({super.key});
 
   @override
   State<NavView> createState() => _NavViewState();
@@ -56,31 +55,31 @@ Widget _loadView({required int index}) {
 }
 
 List<IconData> _icons = [
-  Icons.home,
-  Icons.search,
-  MdiIcons.video,
-  MdiIcons.chat,
+  LucideIcons.house,
+  LucideIcons.search,
+  LucideIcons.video,
+  LucideIcons.messageCircle,
   Icons.person,
 ];
 
-_advancedStatusCheck({required BuildContext context}) async {
-  // Instantiate NewVersion manager object (Using GCP Console app as example)
-  final newVersion = NewVersionPlus();
-  final status = await newVersion.getVersionStatus();
+// _advancedStatusCheck({required BuildContext context}) async {
+//   // Instantiate NewVersion manager object (Using GCP Console app as example)
+//   final newVersion = NewVersionPlus();
+//   final status = await newVersion.getVersionStatus();
 
-  if (status != null && status.canUpdate == true) {
-    newVersion.showUpdateDialog(
-      context: context,
-      versionStatus: status,
-      allowDismissal: false,
-      dialogTitle: "Update Available",
-      dialogText:
-          "Please update the app from ${status.localVersion} to ${status.storeVersion}",
-      launchModeVersion: LaunchModeVersion.external,
-      updateButtonText: 'Update',
-    );
-  }
-}
+//   if (status != null && status.canUpdate == true) {
+//     newVersion.showUpdateDialog(
+//       context: context,
+//       versionStatus: status,
+//       allowDismissal: false,
+//       dialogTitle: "Update Available",
+//       dialogText:
+//           "Please update the app from ${status.localVersion} to ${status.storeVersion}",
+//       launchModeVersion: LaunchModeVersion.external,
+//       updateButtonText: 'Update',
+//     );
+//   }
+// }
 
 class _NavViewState extends State<NavView> with WidgetsBindingObserver {
   late LiveStreamingController _livekitStreamingController;
@@ -179,7 +178,7 @@ class _NavViewState extends State<NavView> with WidgetsBindingObserver {
 
       // For only Temporary hide
       try {
-        _advancedStatusCheck(context: context);
+        // _advancedStatusCheck(context: context);
       } catch (e) {
         //
       }
@@ -347,7 +346,7 @@ class _NavViewState extends State<NavView> with WidgetsBindingObserver {
                         ),
                       ),
                       title: const Text(
-                        'Doyel Live',
+                        'Sky Live',
                         style: TextStyle(color: Colors.black),
                       ),
                       backgroundColor: Colors.white,
@@ -376,60 +375,58 @@ class _NavViewState extends State<NavView> with WidgetsBindingObserver {
                   // }),
                 ],
               ),
-              bottomNavigationBar: Container(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                color: Colors.white,
-                child: CustomTabBar(
-                  icons: _icons,
-                  selectedIndex: _navController.pageIndex.value,
-                  onTap: (index) async {
-                    if (index == _navController.pageIndex.value) {
-                      return;
-                    }
+         
+  bottomNavigationBar: MotionTabBar(
+  initialSelectedTab: _navController.pageIndex.value == 0
+      ? "Home"
+      : _navController.pageIndex.value == 1
+          ? "Search"
+          : _navController.pageIndex.value == 2
+              ? "Live"
+              : _navController.pageIndex.value == 3
+                  ? "Chat"
+                  : "Profile",
 
-                    // 2 is the broadcast streaming
-                    // if (index == CHATS) {
-                    //   Navigator.of(context).pushNamedAndRemoveUntil(
-                    //       Routes.CHAT, (Route<dynamic> route) => false);
-                    // } else
+  labels: const [
+    "Home",
+    "Search",
+    "Live",
+    "Chat",
+    "Profile",
+  ],
 
-                    if (index != LIVE_STREAM) {
-                      _navController.setPageIndex(index: index);
-                    } else {
-                      // if (_authController.showingLiveStreamingWidget.value) {
-                      //   Get.snackbar(
-                      //     'Not allowed',
-                      //     "You have to end recent streaming.",
-                      //     backgroundColor: Colors.orange,
-                      //     colorText: Colors.white,
-                      //     snackPosition: SnackPosition.BOTTOM,
-                      //     duration: const Duration(seconds: 2),
-                      //   );
-                      //   return;
-                      // }
-                      // if (_authController.showingCallWidget.value) {
-                      //   Get.snackbar(
-                      //     'Not allowed',
-                      //     "You are already in call.",
-                      //     backgroundColor: Colors.orange,
-                      //     colorText: Colors.white,
-                      //     snackPosition: SnackPosition.BOTTOM,
-                      //     duration: const Duration(seconds: 2),
-                      //   );
-                      //   return;
-                      // }
-                      await availableCameras().then(
-                        (value) => Get.to(
-                          () => PrepareToLiveView(
-                            camera: value[1],
-                            // onUpdateLiveStreamStatus: onUpdateLiveStreamStatus,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
+  icons: const [
+    LucideIcons.house,
+    LucideIcons.search,
+    LucideIcons.video,
+    LucideIcons.messagesSquare,
+    LucideIcons.user,
+  ],
+
+  tabSize: 50,
+  tabBarHeight: 60,
+  textStyle: const TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  ),
+
+  tabIconColor: Colors.white54,
+  tabIconSelectedColor: Colors.white,
+  tabSelectedColor: Colors.black,
+  tabBarColor: Colors.black.withOpacity(0.8),
+
+  onTabItemSelected: (index) async {
+    if (index == _navController.pageIndex.value) return;
+
+    if (index != LIVE_STREAM) {
+      _navController.setPageIndex(index: index);
+    } else {
+      final cameras = await availableCameras();
+      Get.to(() => PrepareToLiveView(camera: cameras[1]));
+    }
+  },
+),
             );
           }),
         ),

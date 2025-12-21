@@ -8,14 +8,17 @@ plugins {
 
 import java.util.Properties
 import java.io.FileInputStream
+import java.io.File
 
-val keystoreProperties = Properties()
-val keystorePropertiesFile = rootProject.file("key.properties")
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+val keystorePropertiesFile = File(rootProject.projectDir, "key.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
 }
+
 android {
-    namespace = "com.taksoft.doyel_live"
+    namespace = "com.skylive.bd.saver"
     compileSdk = 36
     // ndkVersion = flutter.ndkVersion
     ndkVersion = "28.2.13676358"
@@ -35,7 +38,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.taksoft.doyel_live"
+        applicationId = "com.skylive.bd.saver"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -45,11 +48,11 @@ android {
         multiDexEnabled = true
     }
 
-    signingConfigs {
+   signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+            storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
             storePassword = keystoreProperties["storePassword"] as String?
         }
     }

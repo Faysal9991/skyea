@@ -1,7 +1,7 @@
 name: doyel_live
 description: "Live Streaming App."
 publish_to: 'none'
-version: 1.1.6+18
+version: 1.1.8
 
 environment:
   sdk: ^3.8.0
@@ -27,14 +27,14 @@ dependencies:
   firebase_core: ^3.15.2
   # firebase_auth: ^5.7.0
   firebase_messaging: ^15.2.10
-  google_sign_in: ^7.1.1
+  google_sign_in: ^7.2.0
   app_links: ^6.4.0 # Alternative to uni_links
   # livekit_client: 2.3.6
   # livekit_client: ^2.5.0+hotfix.3
   livekit_client: ^2.5.1
 
 
-  get: ^4.7.2
+  get: ^4.7.3
   headset_connection_event: ^4.0.2
   intl: ^0.20.2
   loading_overlay: ^0.4.3
@@ -44,7 +44,7 @@ dependencies:
   new_version_plus: ^0.1.1
   path_provider: ^2.1.5
   package_info_plus: ^8.3.1
-  share_plus: ^11.1.0
+  share_plus: ^12.0.1
   url_launcher: ^6.3.2
   streaming_shared_preferences: ^2.0.0
   timeago: ^3.7.1
@@ -56,6 +56,12 @@ dependencies:
   flutter_local_notifications: ^19.4.1
   google_fonts: ^6.3.3
   animate_do: ^4.2.0
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.2
+  stylish_bottom_bar: ^1.1.1
+  lucide_flutter: ^0.559.0
+  motion_tab_bar: ^2.0.4
+  change_app_package_name: ^1.5.0
 
 # dependency_overrides: 
 #   # flutter_webrtc: 0.12.7

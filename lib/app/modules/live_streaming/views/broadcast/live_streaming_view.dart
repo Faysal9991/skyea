@@ -17,7 +17,6 @@ import 'package:doyel_live/app/modules/live_streaming/views/broadcast/helper_fun
 import 'package:doyel_live/app/modules/live_streaming/views/livekit/widgets/participant_info.dart';
 import 'package:doyel_live/app/modules/nav/views/nav_view.dart';
 import 'package:doyel_live/app/utils/constants.dart';
-import 'package:doyel_live/app/utils/firebase_stuffs/helper_functions.dart';
 import 'package:doyel_live/app/widgets/circle_button.dart';
 import 'package:doyel_live/app/widgets/reusable_widgets.dart';
 import 'package:emojis/emoji.dart';
@@ -232,6 +231,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
       ////////////////////
       // Animated Gifts
       if (data['gift_type'] == 'animation') {
+        print("animate gift sending ------>${data['gift_type']}");
         _livekitStreamingController.listAnimatedGiftSend.add(data);
         _livekitStreamingController.setTimerForShowAnimatedGiftSendAnimation();
       } else {
@@ -335,11 +335,17 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
         data = {...data, ...gzipData};
       }
 
+
+      print("======================>>>>${data}");
+
       _takeActionOnReceivedData(data);
+
+
     });
   }
 
   void _takeActionOnReceivedData(dynamic data) async {
+
     if (data != null) {
       switch (data['action']) {
         // Request to Call
@@ -715,6 +721,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
         case 'activity':
           if (data != null) {
             data['datetime'] = DateTime.now().toIso8601String();
+            //TODO: Need to Update
             _showUpActivity(data: data);
           }
           break;
@@ -1967,26 +1974,27 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       // Share
-                      CircleButton(
-                        icon: Icons.share,
-                        iconSize: 24.0,
-                        minHeight: 32,
-                        minWidth: 32,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        iconColor: Colors.white70,
-                        onPressed: () {
-                          HelperFunctions().buildDynamicLinksForLiveStreaming(
-                            title: _livekitStreamingController
-                                .broadcasterFullname
-                                .value,
-                            description: 'Is Live Now',
-                            image: _livekitStreamingController
-                                .broadcasterProfileImage
-                                .value,
-                            channelId: widget.channelName,
-                          );
-                        },
-                      ),
+                      // CircleButton(
+                      //   icon: Icons.share,
+                      //   iconSize: 24.0,
+                      //   minHeight: 32,
+                      //   minWidth: 32,
+                      //   backgroundColor: Theme.of(context).primaryColor,
+                      //   iconColor: Colors.white70,
+                      //   onPressed: () {
+                      //     HelperFunctions().buildDynamicLinksForLiveStreaming(
+                      //       title: _livekitStreamingController
+                      //           .broadcasterFullname
+                      //           .value,
+                      //       description: 'Is Live Now',
+                      //       image: _livekitStreamingController
+                      //           .broadcasterProfileImage
+                      //           .value,
+                      //       channelId: widget.channelName,
+                      //     );
+                      //   },
+                      // ),
+                    
                       // Allow Comment and Emoji sends
                       !widget.isBroadcaster
                           ? Container()
@@ -2185,6 +2193,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                     ],
                   ),
                 ),
+              
               ],
             ),
           ),
@@ -2249,15 +2258,22 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
     }
   }
 
-  Future<void> _connectingRoom({required String token}) async {
-    _livekitStreamingController.busyConnectingEngine.value = true;
-    // String serverUrl = 'wss://livekit.famousapp.xyz';
+ Future<void> _connectingRoom({required String token}) async {
+  debugPrint('🟡 [LiveKit] _connectingRoom START');
+  debugPrint('🟡 [LiveKit] serverUrl=$_serverUrl');
+  debugPrint('🟡 [LiveKit] isBroadcaster=${widget.isBroadcaster}');
+  debugPrint('🟡 [LiveKit] fastConnect=$_fastConnect');
+  debugPrint('🟡 [LiveKit] myUid=$_myUid');
 
-    // Try to connect to the room
-    // This will throw an Exception if it fails for any reason.
-    // Reference: https://docs.livekit.io/client-sdk-flutter/livekit_client/VideoParametersPresets.html
+  _livekitStreamingController.busyConnectingEngine.value = true;
+  debugPrint('🟡 [LiveKit] busyConnectingEngine = true');
 
+  try {
+    debugPrint('🔵 [LiveKit] prepareConnection() START');
     await _room!.prepareConnection(_serverUrl, token);
+    debugPrint('✅ [LiveKit] prepareConnection() DONE');
+
+    debugPrint('🔵 [LiveKit] connect() START');
 
     await _room!
         .connect(
@@ -2265,148 +2281,173 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
           token,
           fastConnectOptions: _fastConnect || widget.isBroadcaster
               ? FastConnectOptions(
-                  microphone: const TrackOption(enabled: true),
-                  camera: const TrackOption(enabled: true),
+                  microphone: TrackOption(enabled: true),
+                  camera: TrackOption(enabled: true),
                 )
               : null,
         )
         .then(
-          (value) async {
-            // Room Connected
-            if (widget.isBroadcaster) {
-              if (_livekitStreamingController.listActiveCall.isEmpty) {
-                dynamic callerData = {
-                  'uid': _myUid,
-                  'full_name': widget.fullName,
-                  'profile_image': widget.profileImage,
-                  'diamonds': _authController.profile.value.diamonds,
-                  'vvip_or_vip_preference':
-                      _authController.profile.value.vvip_or_vip_preference,
-                  'followers': _authController.profile.value.followers,
-                  'muted': false,
-                  'video_disabled': false,
-                };
-                _livekitStreamingController.listActiveCall.insert(
-                  0,
-                  callerData,
-                );
+      (value) async {
+        debugPrint('✅ [LiveKit] connect() SUCCESS');
 
-                // // TODO: Testing
-                // for (int i = 1; i <= 10; i++) {
-                //   _livekitStreamingController.listActiveCall.insert(
-                //     i,
-                //     callerData,
-                //   );
-                // }
-              }
+        // ================= BROADCASTER =================
+        if (widget.isBroadcaster) {
+          debugPrint('🎥 [LiveKit] User is BROADCASTER');
 
-              Profile myProfile = _authController.profile.value;
+          debugPrint(
+            '📊 [LiveKit] listActiveCall length = '
+            '${_livekitStreamingController.listActiveCall.length}',
+          );
 
-              var liveData = {
-                "id": 16,
-                "channel_id": _myUid,
-                "title": widget.fullName,
-                "is_pk": false,
-                "is_video": true,
-                "is_locked": false,
-                "allow_send": true,
-                "cm_flt_nm": null,
-                "owner_profile": {
-                  "uid": _myUid,
-                  "full_name": widget.fullName,
-                  "profile_image": widget.profileImage,
-                  "cover_image": null,
-                  "vvip_or_vip_gif":
-                      widget.vVipOrVipPreference['vvip_or_vip_gif'],
-                  "diamonds": myProfile.diamonds,
-                  "blocks": myProfile.blocks,
-                  // "designation": "agent"
-                },
-                "group_caller_ids": [
-                  {'uid': _myUid, 'position': 1},
-                ],
-                "reacts": 0,
-                "viewers_count": 0,
-                "locked_datetime": null,
-                "engine": _engineName,
-                "created_datetime": DateTime.now().toIso8601String(),
-              };
-              _livekitStreamingController.channelName.value = _myUid.toString();
-              _livekitStreamingController.liveStreamData.value = liveData;
+          if (_livekitStreamingController.listActiveCall.isEmpty) {
+            debugPrint('➕ [LiveKit] Adding broadcaster to listActiveCall');
 
-              liveData['action'] = 'add_live_room';
-              LiveRoomIsolationActions.useIsolateUpdateLiveRoom(
-                submissionData: liveData,
-              );
+            final callerData = {
+              'uid': _myUid,
+              'full_name': widget.fullName,
+              'profile_image': widget.profileImage,
+              'diamonds': _authController.profile.value.diamonds,
+              'vvip_or_vip_preference':
+                  _authController.profile.value.vvip_or_vip_preference,
+              'followers': _authController.profile.value.followers,
+              'muted': false,
+              'video_disabled': false,
+            };
 
-              // One time History
-              LiveRoomIsolationActions.useIsolateToDeleteContributionHistory(
-                token: _authController.token.value,
-              );
-              // _livekitStreamingController.tryToDeleteContributionHistory();
-              // Notify followers about Live Streaming
-              LiveRoomIsolationActions.useIsolateNotifyFollowerAboutLiveStreaming(
-                token: _authController.token.value,
-              );
-              // // Notify followers about Live Streaming
-              // _livekitStreamingController.tryToNotifyFollowerAboutLiveStreaming();
-            }
-            // await Hardware.instance.setSpeakerphoneOn(true);
-            await rtc.Helper.setSpeakerphoneOn(
-              _livekitStreamingController.loudSpeaker.value,
-            );
+            _livekitStreamingController.listActiveCall.insert(0, callerData);
+          }
 
-            _livekitStreamingController.busyConnectingEngine.value = false;
-            _renderParticipants();
+          final myProfile = _authController.profile.value;
 
-            // For only participant
-            if (!widget.isBroadcaster) {
-              dynamic userJoined = {
-                'action': 'participant_joined',
-                'uid': _myUid,
-                'full_name': _authController.profile.value.full_name,
-                'profile_image':
-                    _authController.profile.value.profile_image ??
-                    _authController.profile.value.photo_url,
-                'is_moderator': _authController.profile.value.is_moderator,
-                'is_reseller': _authController.profile.value.is_reseller,
-                'diamonds': _authController.profile.value.diamonds,
-                'level': _authController.profile.value.level,
-                'vvip_or_vip_preference':
-                    _authController.profile.value.vvip_or_vip_preference,
-              };
+          debugPrint('📡 [LiveKit] Creating liveData object');
 
-              onUpdateAction(userJoined);
+          final liveData = {
+            "id": 16,
+            "channel_id": _myUid,
+            "title": widget.fullName,
+            "is_pk": false,
+            "is_video": true,
+            "is_locked": false,
+            "allow_send": true,
+            "owner_profile": {
+              "uid": _myUid,
+              "full_name": widget.fullName,
+              "profile_image": widget.profileImage,
+              "vvip_or_vip_gif":
+                  widget.vVipOrVipPreference['vvip_or_vip_gif'],
+              "diamonds": myProfile.diamonds,
+              "blocks": myProfile.blocks,
+            },
+            "group_caller_ids": [
+              {'uid': _myUid, 'position': 1},
+            ],
+            "engine": _engineName,
+            "created_datetime": DateTime.now().toIso8601String(),
+          };
 
-              if (_listGroupIds.isEmpty) {
-                _sortParticipants();
-              }
-              // broadcasterDiamonds
-              _livekitStreamingController.loadGroupCallerList(
-                channelId: widget.channelName,
-                callerIds: _listGroupIds,
-              );
-            }
-          },
-          onError: (error) {
-            // _closeEverything();
-            // Get.defaultDialog(
-            //   title: 'Something is wrong',
-            //   middleText: 'Please try again',
-            //   titleStyle: const TextStyle(
-            //     color: Colors.orange,
-            //   ),
-            // );
-            if (_isDisposed) return;
-            rShowSnackBar(
-              context: context,
-              title: 'Connection failed. Please try again.',
-              color: Colors.red,
-              durationInSeconds: 2,
-            );
-          },
+          _livekitStreamingController.channelName.value = _myUid.toString();
+          _livekitStreamingController.liveStreamData.value = liveData;
+
+          debugPrint('📡 [LiveKit] Sending add_live_room isolate action');
+
+          liveData['action'] = 'add_live_room';
+          LiveRoomIsolationActions.useIsolateUpdateLiveRoom(
+            submissionData: liveData,
+          );
+
+          debugPrint('🧹 [LiveKit] Deleting contribution history');
+          LiveRoomIsolationActions.useIsolateToDeleteContributionHistory(
+            token: _authController.token.value,
+          );
+
+          debugPrint('📢 [LiveKit] Notifying followers about live stream');
+          LiveRoomIsolationActions.useIsolateNotifyFollowerAboutLiveStreaming(
+            token: _authController.token.value,
+          );
+        }
+
+        // ================= COMMON =================
+        debugPrint('🔊 [LiveKit] Setting speakerphone '
+            'loudSpeaker=${_livekitStreamingController.loudSpeaker.value}');
+
+        await rtc.Helper.setSpeakerphoneOn(
+          _livekitStreamingController.loudSpeaker.value,
         );
+
+        _livekitStreamingController.busyConnectingEngine.value = false;
+        debugPrint('🟢 [LiveKit] busyConnectingEngine = false');
+
+        debugPrint('🧱 [LiveKit] Rendering participants');
+        _renderParticipants();
+
+        // ================= PARTICIPANT =================
+        if (!widget.isBroadcaster) {
+          debugPrint('👤 [LiveKit] User is PARTICIPANT');
+
+          final userJoined = {
+            'action': 'participant_joined',
+            'uid': _myUid,
+            'full_name': _authController.profile.value.full_name,
+            'profile_image':
+                _authController.profile.value.profile_image ??
+                _authController.profile.value.photo_url,
+            'is_moderator': _authController.profile.value.is_moderator,
+            'is_reseller': _authController.profile.value.is_reseller,
+            'diamonds': _authController.profile.value.diamonds,
+            'level': _authController.profile.value.level,
+            'vvip_or_vip_preference':
+                _authController.profile.value.vvip_or_vip_preference,
+          };
+
+          debugPrint('📤 [LiveKit] Sending participant_joined event');
+          onUpdateAction(userJoined);
+
+          debugPrint(
+            '📊 [LiveKit] _listGroupIds BEFORE sort = $_listGroupIds',
+          );
+
+          if (_listGroupIds.isEmpty) {
+            debugPrint('🔃 [LiveKit] Sorting participants');
+            _sortParticipants();
+          }
+
+          debugPrint(
+            '📞 [LiveKit] Calling loadGroupCallerList | '
+            'channelId=${widget.channelName}, '
+            'callerIds=$_listGroupIds',
+          );
+
+          _livekitStreamingController.loadGroupCallerList(
+            channelId: widget.channelName,
+            callerIds: _listGroupIds,
+          );
+        }
+
+        debugPrint('🟢 [LiveKit] _connectingRoom SUCCESS END');
+      },
+      onError: (error) {
+        debugPrint('❌ [LiveKit] connect() FAILED');
+        debugPrint('❌ [LiveKit] error = $error');
+
+        if (_isDisposed) {
+          debugPrint('⚠️ [LiveKit] Widget disposed, skipping UI update');
+          return;
+        }
+
+        rShowSnackBar(
+          context: context,
+          title: 'Connection failed. Please try again.',
+          color: Colors.red,
+          durationInSeconds: 2,
+        );
+      },
+    );
+  } catch (e, s) {
+    debugPrint('🔥 [LiveKit] EXCEPTION');
+    debugPrint('🔥 error = $e');
+    debugPrint('🔥 stackTrace = $s');
   }
+}
 
   /// Video layout wrapper
   Widget _broadcastView() {
@@ -3941,7 +3982,7 @@ class _LiveStreamingViewState extends State<LiveStreamingView>
                                   fit: BoxFit.cover,
                                 )
                               : CachedNetworkImage(
-                                  imageUrl: '${data['profile_image']}',
+                                  imageUrl: 'https://${data['profile_image']}',
                                   width: 28,
                                   height: 28,
                                   fit: BoxFit.cover,

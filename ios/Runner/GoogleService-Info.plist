@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>327249087442-jaskbd12084419aspak5hs00ct0r5m87.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.327249087442-jaskbd12084419aspak5hs00ct0r5m87</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>327249087442-svr8505413i8c5krssbcq39q81tvghqb.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDNBsex-pphvmGXiWxAqj8tsGYcD9WocOs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>327249087442</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.skylive.bd.saver</string>
+	<key>PROJECT_ID</key>
+	<string>skyelive-15557</string>
+	<key>STORAGE_BUCKET</key>
+	<string>skyelive-15557.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:327249087442:ios:80f10447b47e1bced6d60b</string>
+</dict>
+</plist>

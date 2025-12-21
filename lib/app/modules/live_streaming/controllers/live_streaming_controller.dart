@@ -118,7 +118,7 @@ class LiveStreamingController extends GetxController {
   final RxList<ParticipantTrack> listRenderView = <ParticipantTrack>[].obs;
   final liveStreamData = {}.obs;
 
-  String liveRoomSocketBaseUrl = 'ws://195.26.253.191/ws/livekit-live-room';
+  String liveRoomSocketBaseUrl = 'wss://livekit.skyapp.name';
 
   Rx<CameraPosition> cameraPosition = CameraPosition.front.obs;
 
@@ -624,52 +624,84 @@ class LiveStreamingController extends GetxController {
     });
   }
 
-  void setTimerForShowAnimatedGiftSendAnimation() async {
-    if (listAnimatedGiftSend.isNotEmpty &&
-        _timerAnimatedGiftSendAnimcation == null) {
-      // if (_timerAnimatedGiftSendAnimcation != null) {
-      //   _timerAnimatedGiftSendAnimcation?.cancel();
-      // }
-      final giftData = listAnimatedGiftSend[0];
-      Duration duration = const Duration(milliseconds: 1300);
-      if (giftData['gift_type'] == 'animation') {
-        duration = const Duration(seconds: 3);
-      }
-      AudioPlayer? audioPlayer;
-      if (giftData['audio'] != null) {
-        audioPlayer = AudioPlayer(playerId: giftData['gift_id'].toString());
+//TODO: Need Update here
+void setTimerForShowAnimatedGiftSendAnimation() async {
+  print("🎁 [GiftAnim] Function called");
 
-        try {
-          await audioPlayer.play(UrlSource(giftData['audio']), volume: .4);
-        } catch (e) {
-          //
-        }
-      }
+  if (listAnimatedGiftSend.isEmpty) {
+    print("⛔ [GiftAnim] No gifts in queue");
+    return;
+  }
 
-      showGiftSendAnimation.value = true;
-      _timerAnimatedGiftSendAnimcation = Timer(duration, () async {
-        showGiftSendAnimation.value = false;
-        _timerAnimatedGiftSendAnimcation?.cancel();
-        _timerAnimatedGiftSendAnimcation = null;
-        if (giftData['audio'] != null) {
-          // AudioPlayer audioPlayer =
-          //     AudioPlayer(playerId: giftData['gift_id'].toString());
-          try {
-            await audioPlayer?.stop();
-            await audioPlayer?.release();
-          } catch (e) {
-            //
-          }
-        }
-        try {
-          listAnimatedGiftSend.removeAt(0);
-        } catch (e) {
-          //
-        }
-        setTimerForShowAnimatedGiftSendAnimation();
-      });
+  if (_timerAnimatedGiftSendAnimcation != null) {
+    print("⏳ [GiftAnim] Animation already running, waiting...");
+    return;
+  }
+
+  final giftData = listAnimatedGiftSend[0];
+  print("▶️ [GiftAnim] Starting animation for giftId: ${giftData['gift_id']}");
+
+  Duration duration = const Duration(milliseconds: 100);
+  if (giftData['gift_type'] == 'animation') {
+    duration = const Duration(seconds: 3);
+    print("🎬 [GiftAnim] Animation type detected (3s duration)");
+  } else {
+    print("⚡ [GiftAnim] Static gift (100ms duration)");
+  }
+
+  AudioPlayer? audioPlayer;
+
+  if (giftData['audio'] != "null") {
+    print("🔊 [GiftAnim] Playing audio for giftId: ${giftData['gift_id']}");
+    audioPlayer = AudioPlayer(
+      playerId: giftData['gift_id'].toString(),
+    );
+  print("===========audio url${giftData}");
+    try {
+      await audioPlayer.play(
+        UrlSource(giftData['audio']),
+        volume: .4,
+      );
+      print("✅ [GiftAnim] Audio started");
+    } catch (e) {
+      print("❌ [GiftAnim] Audio play failed: $e");
     }
   }
+
+  showGiftSendAnimation.value = true;
+  print("👀 [GiftAnim] Animation visible = true");
+
+  _timerAnimatedGiftSendAnimcation = Timer(duration, () async {
+    print("⏹️ [GiftAnim] Animation finished for giftId: ${giftData['gift_id']}");
+
+    showGiftSendAnimation.value = false;
+    print("🙈 [GiftAnim] Animation visible = false");
+
+    _timerAnimatedGiftSendAnimcation?.cancel();
+    _timerAnimatedGiftSendAnimcation = null;
+
+    if (giftData['audio'] != null) {
+      try {
+        await audioPlayer?.stop();
+        await audioPlayer?.release();
+        print("🔇 [GiftAnim] Audio stopped & released");
+      } catch (e) {
+        print("❌ [GiftAnim] Audio stop failed: $e");
+      }
+    }
+
+    try {
+      listAnimatedGiftSend.removeAt(0);
+      print("🗑️ [GiftAnim] Gift removed from queue");
+      print("📦 [GiftAnim] Remaining gifts: ${listAnimatedGiftSend.length}");
+    } catch (e) {
+      print("❌ [GiftAnim] Failed to remove gift: $e");
+    }
+
+    print("🔁 [GiftAnim] Triggering next animation (if any)");
+    setTimerForShowAnimatedGiftSendAnimation();
+  });
+}
 
   void removeExpiredNormalGiftShow() {
     if (listNormalGiftSend.isNotEmpty) {
@@ -1155,137 +1187,106 @@ class LiveStreamingController extends GetxController {
   gift_id = int(data_obj.get('gift_id',0))
    */
 
-  Future<bool> tryToSendGiftOnLiveStreaming({
-    required String channelName,
-    required List<dynamic> receiverUids,
-    required String giftType,
-    required int giftId,
-    required int diamonds,
-    required int totalDiamonds,
-    required int vat,
-    required String receiverFullNames,
-    String? giftImage,
-    String? gif,
-    String? audio,
-    required BuildContext context,
-  }) async {
-    loadingGiftSend.value = giftId;
+ RxBool isLoading = false.obs;
+Future<bool> tryToSendGiftOnLiveStreaming({
+  required String channelName,
+  required List<dynamic> receiverUids,
+  required String giftType,
+  required int giftId,
+  required int diamonds,
+  required int totalDiamonds,
+  required int vat,
+  required String receiverFullNames,
+  String? giftImage,
+  String? gif,
+  String? audio,
+  required BuildContext context,
+}) async {
+  isLoading.value = true;
+  loadingGiftSend.value = giftId;
 
-    Profile myProfile = _authController.profile.value;
+  Profile myProfile = _authController.profile.value;
 
-    dynamic data = {
-      'room_name': channelName,
-      'sender_uid': myProfile.user!.uid!,
-      'receiver_uids': receiverUids,
-      'full_name': myProfile.full_name,
-      'receiver_full_name': receiverFullNames,
-      'profile_image': myProfile.profile_image ?? myProfile.photo_url,
-      'level': myProfile.level,
-      'gift_type': giftType,
-      'gift_id': giftId,
-      'total_diamonds': totalDiamonds,
-      'diamonds': diamonds,
-      'vat': vat,
-      'gift_image': giftImage,
-      'gif': gif,
-      'audio': audio,
-      'vvip_or_vip_preference': myProfile.vvip_or_vip_preference,
-    };
-    //  '${data['full_name']} sends ${data['diamonds']} diamonds to ${data['receiver_full_name']}';
-    // dynamic globalSocketData = {
-    //   'type': 'gift',
-    //   'full_name': myProfile.full_name,
-    //   'diamonds': diamonds,
-    //   'receiver_full_name': receiverFullNames,
-    // };
-    // onUpdateLiveStreamStatus(globalSocketData);
+  final data = {
+    'room_name': channelName,
+    'sender_uid': myProfile.user!.uid!,
+    'receiver_uids': receiverUids,
+    'full_name': myProfile.full_name,
+    'receiver_full_name': receiverFullNames,
+    'profile_image': myProfile.profile_image ?? myProfile.photo_url,
+    'level': myProfile.level,
+    'gift_type': giftType,
+    'gift_id': giftId,
+    'total_diamonds': totalDiamonds,
+    'diamonds': diamonds,
+    'vat': vat,
+    'gift_image': giftImage,
+    'gif': gif,
+    'audio': audio,
+    'vvip_or_vip_preference': myProfile.vvip_or_vip_preference,
+  };
 
-    // dynamic data = {
-    //   'sender_uid': myProfile.user!.uid!,
-    //   'receiver_uids': receiverUids,
-    //   'total_diamonds': totalDiamonds,
-    //   'diamonds': diamonds,
-    //   'vat': vat,
-    // };
+  /// 🔵 REQUEST LOG
+  debugPrint('================ SEND GIFT REQUEST ================');
+  debugPrint('URL: $kLiveStreamingGiftCreateUrl');
+  debugPrint('TOKEN: ${_authController.token.value}');
+  debugPrint('PAYLOAD: $data');
+  debugPrint('===================================================');
 
-    var dio = Dio();
-    try {
-      final response = await dio.post(
-        kLiveStreamingGiftCreateUrl,
-        data: data,
-        options: Options(
-          headers: {
-            'accept': '*/*',
-            'Authorization': 'Token ${_authController.token.value}',
-            'X-Api-Key': DRF_API_KEY,
-          },
-        ),
+  final dio = Dio();
+
+  try {
+    final response = await dio.post(
+      kLiveStreamingGiftCreateUrl,
+      data: data,
+      options: Options(
+        headers: {
+          'accept': '*/*',
+          'Authorization': 'Token ${_authController.token.value}',
+          'X-Api-Key': DRF_API_KEY,
+        },
+      ),
+    );
+
+    /// 🟢 RESPONSE LOG
+    debugPrint('================ SEND GIFT RESPONSE ================');
+    debugPrint('STATUS CODE: ${response.statusCode}');
+    debugPrint('RESPONSE DATA: ${response.data}');
+    debugPrint('====================================================');
+
+    loadingGiftSend.value = -1;
+
+    final statusCode = response.statusCode;
+
+    if (statusCode == 201) {
+   
+  isLoading.value = false;
+update();
+
+debugPrint(
+  '✅ Gift sent $diamonds successfully====${_authController.profile.value.diamonds}',
+);
+      return true;
+    } else if (statusCode == 203) {
+      debugPrint('❌ Not enough diamonds');
+      rShowSnackBar(
+        context: context,
+        title:
+            "You have no sufficient diamonds to send this gift. Please purchase diamonds.",
+        color: Colors.red,
+        durationInSeconds: 6,
       );
-      int? statusCode = response.statusCode;
-      loadingGiftSend.value = -1;
-      if (statusCode == 201) {
-        // Get.snackbar(
-        //   'Success',
-        //   "Gift has been sent successfully.",
-        //   backgroundColor: Colors.green,
-        //   colorText: Colors.white,
-        //   snackPosition: SnackPosition.TOP,
-        // );
-        return true;
-      } else if (statusCode == 203) {
-        // Get.snackbar(
-        //   'Failed',
-        //   "You have no sufficient diamonds to send this gift. Please purchase diamonds.",
-        //   backgroundColor: Colors.red,
-        //   colorText: Colors.white,
-        //   snackPosition: SnackPosition.TOP,
-        //   duration: const Duration(seconds: 6),
-        // );
-        rShowSnackBar(
-          context: context,
-          title:
-              "You have no sufficient diamonds to send this gift. Please purchase diamonds.",
-          color: Colors.red,
-          durationInSeconds: 6,
-        );
-      } else if (statusCode == 204) {
-        // Get.snackbar(
-        //   'Failed',
-        //   "You have no sufficient diamonds to send this gift. Please purchase diamonds.",
-        //   backgroundColor: Colors.red,
-        //   colorText: Colors.white,
-        //   snackPosition: SnackPosition.TOP,
-        //   duration: const Duration(seconds: 6),
-        // );
-        Get.defaultDialog(
-          title: 'Locked',
-          middleText: 'Your diamonds has been locked.',
-          titleStyle: const TextStyle(color: Colors.red),
-        );
-      } else {
-        // Get.snackbar(
-        //   'Failed',
-        //   "Something is wrong. Please try again.",
-        //   backgroundColor: Colors.red,
-        //   colorText: Colors.white,
-        //   snackPosition: SnackPosition.TOP,
-        // );
-        rShowSnackBar(
-          context: context,
-          title: "Something is wrong. Please try again.",
-          color: Colors.red,
-          durationInSeconds: 2,
-        );
-      }
-    } catch (e) {
-      loadingGiftSend.value = -1;
-      // Get.snackbar(
-      //   'Failed',
-      //   "Something is wrong. Please try again.",
-      //   backgroundColor: Colors.red,
-      //   colorText: Colors.white,
-      //   snackPosition: SnackPosition.TOP,
-      // );
+    } else if (statusCode == 204) {
+       isLoading.value = false;
+      debugPrint('🔒 Diamonds locked');
+      Get.defaultDialog(
+        title: 'Locked',
+        middleText: 'Your diamonds has been locked.',
+        titleStyle: const TextStyle(color: Colors.red),
+      );
+    } else {
+       isLoading.value = false;
+      debugPrint('⚠️ Unknown status code');
       rShowSnackBar(
         context: context,
         title: "Something is wrong. Please try again.",
@@ -1293,8 +1294,25 @@ class LiveStreamingController extends GetxController {
         durationInSeconds: 2,
       );
     }
-    return false;
+  } catch (e, stackTrace) {
+    loadingGiftSend.value = -1;
+ isLoading.value = false;
+    /// 🔴 ERROR LOG
+    debugPrint('================ SEND GIFT ERROR ==================');
+    debugPrint('ERROR: $e');
+    debugPrint('STACKTRACE: $stackTrace');
+    debugPrint('===================================================');
+
+    rShowSnackBar(
+      context: context,
+      title: "Something is wrong. Please try again.",
+      color: Colors.red,
+      durationInSeconds: 2,
+    );
   }
+
+  return false;
+}
 
   void sortingViewerList(List<dynamic> viewers) {
     if (viewers.length > 1) {
